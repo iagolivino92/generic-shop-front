@@ -4,7 +4,7 @@ from utils import login_utils
 from flask import Flask, render_template, request
 from flask_cors import CORS, cross_origin
 
-HTML_PATH = os.path.abspath(os.path.dirname(__file__)) + '/frontend/'
+HTML_PATH = os.path.abspath(os.path.dirname(__file__)) + '../frontend/'
 app = Flask(__name__, template_folder=HTML_PATH, static_folder=HTML_PATH)
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
