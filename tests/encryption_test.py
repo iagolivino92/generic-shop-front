@@ -10,7 +10,7 @@ def main():
     key = bytes(os.getenv('AES_KEY'), 'utf-8')
     encrypted = encrypt(key, data)
     print(encrypted)
-    print(decrypt(key, encrypted))
+    print(decrypt(key, encrypted).decode('utf-8'))
 
 
 def encrypt(key, data):
