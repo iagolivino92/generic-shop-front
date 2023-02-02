@@ -1,26 +1,28 @@
 import json
 import requests
 import os
+import rsa
 from Crypto.Cipher import AES
 from dotenv import load_dotenv
 
 
 def call_login(request=None):
     load_dotenv()
-    r_data = request.authorization
-    if not r_data:
+    if not request.authorization:
         try:
             r_data = {"username": request.form['user'], "password": request.form['pass']}
         except Exception as e:
             return f"Error while getting user and pass: {e}", e.code
-    r_data = encrypt(bytes(os.getenv('AES_KEY'), 'utf-8'), bytes(str(r_data), 'utf-8'))
-    data_send = {'nonce': str(r_data[0]), 'tag': str(r_data[1]), 'ciphertext': str(r_data[2])}
-    login_request = requests.post("http://localhost:8081/perform_login", json=data_send)
-    return login_request.content.token, login_request.code
+    else:
+        r_data = {'username': request.authorization['username'], 'password': request.authorization['password']}
+    r_data = encrypt(requests.get('http://localhost:8081/pbc_k').text, str(r_data))
+    login_request = requests.post("http://localhost:8081/perform_login", data=r_data, headers={'Content-Type': 'application/octet-stream'})
+    if json.loads(login_request.text)['message']:
+        return json.loads(login_request.text)['message'], login_request.status_code
+    return json.loads(login_request.text)['token'], login_request.status_code
 
 
 def encrypt(key, data):
-    cipher = AES.new(key, AES.MODE_EAX)
-    ciphertext, tag = cipher.encrypt_and_digest(data)
-    nonce = cipher.nonce
-    return nonce, tag, ciphertext
+    raw_key = key.split(",")
+    public_key = rsa.PublicKey(int(raw_key[0].strip()), int(raw_key[1].strip()))
+    return rsa.encrypt(data.encode(), public_key)

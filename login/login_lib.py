@@ -3,30 +3,24 @@ import json
 
 def decrypt(data):
     import os
+    import rsa
     from dotenv import load_dotenv
-    from Crypto.Cipher import AES
     load_dotenv()
 
-    key = bytes(os.getenv('AES_KEY'), 'utf-8')
-
-    nonce = bytes(data['nonce'][:len(data['nonce'])-1].replace("b'", ""), 'utf-8')
-    tag = bytes(data['tag'][:len(data['tag'])-1].replace("b'", ""), 'utf-8')
-    ciphertext = bytes(data['ciphertext'][:len(data['ciphertext'])-1].replace("b'", ""), 'utf-8')
-
-    cipher = AES.new(key, AES.MODE_EAX, nonce)
-
-    return cipher.decrypt_and_verify(ciphertext, tag).decode('utf-8')
+    raw_key = os.getenv('PRIVATE').split(',')
+    private_key = rsa.PrivateKey(int(raw_key[0].strip()), int(raw_key[1].strip()), int(raw_key[2].strip()), int(raw_key[3].strip()), int(raw_key[4].strip()))
+    return rsa.decrypt(data, private_key).decode()
 
 
-def generate_token_by_user(data):
-    print(data)
+def generate_token_by_user(request):
     # decrypt data
-    decrypted = json.loads(decrypt(data))
-    user, password = decrypted['user'], decrypted['password']
+    tt = decrypt(request.data)
+    decrypted = json.loads(tt.replace("'", '"'))
+    user, password = decrypted['username'], decrypted['password']
 
     # read database
     if user != 'test' or password != 'test':
-        return 'user or password error', 404
+        return json.loads('{"token":"", "message":"user or password error"}'), 404
     # compare password
 
     # get existent token from database
