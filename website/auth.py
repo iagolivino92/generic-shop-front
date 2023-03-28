@@ -22,30 +22,31 @@ auth = Blueprint('auth', __name__)
 def login():
     success, email, password, user = get_user_data(request, User, Shop)
     if success:
-        if check_password_hash(user.password, password):
-            flash('Logged in successfully!', category='success')
-            login_user(user, remember=True)
-            return redirect(url_for('views.home'))
-        else:
-            flash('Incorrect password, try again', category='error')
+        if user:
+            if check_password_hash(user.password, password):
+                flash('Logged in successfully!', category='success')
+                login_user(user, remember=True)
+                return redirect(url_for('views.home'))
+            else:
+                flash('Incorrect password, try again', category='error')
     if email and password:
         flash('User/Shop does not exist!', category='error')
     return render_template("login.html", user=current_user)
 
 
-@auth.route('/', methods=['GET', 'POST'], subdomain='employee')
+@auth.route('/login', methods=['GET', 'POST'], subdomain='employee')
 def emp_login():
     success, email, password, user = get_user_data(request, Employee, Shop)
     if success:
-        if check_password_hash(user.password, password):
-            flash('Logged in successfully!', category='success')
-            login_user(user, remember=True)
-            return redirect(url_for('views.emp_home'))
-        else:
-            flash('Incorrect password, try again', category='error')
-    else:
-        flash('User does not exists!', category='error')
-
+        if user:
+            if check_password_hash(user.password, password):
+                flash('Logged in successfully!', category='success')
+                login_user(user, remember=True)
+                return redirect(url_for('views.emp_home'))
+            else:
+                flash('Incorrect password, try again', category='error')
+    if email and password:
+        flash('Employee/Shop does not exist!', category='error')
     return render_template("login.html", user=current_user)
 
 

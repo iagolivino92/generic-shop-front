@@ -18,4 +18,3 @@ def get_user_data(request, user_type, shop):
                 return False, email, password, None
             return True, email, password, user
     return False, None, None, None
-

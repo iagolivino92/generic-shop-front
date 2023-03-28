@@ -13,6 +13,7 @@ def create_app():
     secret_key is a sha256 for 'giftipapp' string
     """
     app = Flask(__name__)
+    app.config['SERVER_NAME'] = 'giftip.com:5000'
     app.config['SECRET_KEY'] = 'AF662CA93EE8375AF4D4C9A68FC975102AF31297C3DD2801DB655D8CA005EEA0'
     app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{DB_NAME}'
     register_pages(app)
