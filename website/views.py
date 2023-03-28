@@ -26,12 +26,11 @@ def emp_home():
 
 @views.route('/delete-note', methods=['POST'])
 def delete_note():
-    data = json.loads(request.data)
-    note_id = data['noteId']
-    note = Note.query.get(note_id)
-    if note:
-        if note.user_id == current_user.id:
-            db.session.delete(note)
-            db.session.commit()
-
+    # data = json.loads(request.data)
+    # note_id = data['noteId']
+    # note = Note.query.get(note_id)
+    # if note:
+    # if note.user_id == current_user.id:
+    # db.session.delete(note)
+    # db.session.commit()
     return jsonify({})

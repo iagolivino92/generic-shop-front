@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Create Shop{% endblock %}
+{% block content %}
+<form method="POST">
+    <h3 align="center">Create Shop</h3>
+    <div class="form-group">
+        <label for="shop_name">Shop name</label>
+        <input type="text" class="form-control" id="shop_name" name="shop_name" placeholder="Shop name">
+    </div>
+     <div class="form-group">
+        <label for="email">Shop email</label>
+        <input type="email" class="form-control" id="email" name="email" placeholder="Shop email">
+    </div>
+    <div class="form-group">
+        <label for="contact">Shop contact</label>
+        <input type="text" class="form-control" id="contact" name="contact" placeholder="Shop contact">
+    </div>
+    <div class="form-group">
+        <label for="address">Shop address</label>
+        <input type="text" class="form-control" id="address" name="address" placeholder="Shop address">
+    </div>
+    <br/>
+    <button class="btn btn-primary" type="submit">Submit</button>
+</form>
+{% endblock %}

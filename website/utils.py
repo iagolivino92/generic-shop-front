@@ -8,10 +8,14 @@ def get_form_request_data(request):
 
 def get_user_data(request, user_type, shop):
     shop_name = request.args.get('shop', type=str)
-    if not shop_name:
-        return False, None, None, None
-    shop_ = shop.query.filter_by(shop_name=shop_name).first()
-    email, password = get_form_request_data(request)
-    user = user_type.query.filter_by(shop_id=shop_.id, email=email).first()
+    if shop_name:
+        shop_ = shop.query.filter_by(shop_name=shop_name).first()
+        email, password = get_form_request_data(request)
+        if email:
+            try:
+                user = user_type.query.filter_by(shop_id=shop_.id, email=email).first()
+            except AttributeError as e:
+                return False, email, password, None
+            return True, email, password, user
+    return False, None, None, None
 
-    return True, email, password, user
