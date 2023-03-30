@@ -18,7 +18,7 @@ def home():
     return render_template("home.html", user=current_user)
 
 
-@views.route('/')
+@views.route('/', subdomain='employee')
 @login_required
 def emp_home():
     return render_template("employee.html", user=current_user)

@@ -102,7 +102,7 @@ def direct_signup():
             db.session.add(new_user)
             db.session.commit()
             flash('Account created!', category='success')
-            return redirect(url_for('.login'))
+            return redirect(url_for('.login')+f'?shop={shop_name}')
 
     return render_template("signup.html", user=current_user)
 
