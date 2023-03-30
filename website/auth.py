@@ -57,6 +57,13 @@ def logout():
     return redirect(url_for('.login'))
 
 
+@auth.route('/logout', subdomain='employee')
+@login_required
+def emp_logout():
+    logout_user()
+    return redirect(url_for('.emp_login'))
+
+
 # test method. signup endpoint should send a request to existing
 @auth.route('/direct-signup', methods=['GET', 'POST'])
 def direct_signup():
