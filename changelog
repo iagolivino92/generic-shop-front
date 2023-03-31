@@ -9,3 +9,12 @@ add success and error returns to utils
 add delete employee route (no logic yet)
 add changelog file
 -----------------------------------------
+employees page only appears to read and admin roles
+add delete employee logic
+reorder header menu options
+add join requests option to header menu
+add join requests page
+update join request db model
+create accept/decline join request route
+create accept join request logic
+-----------------------------------------

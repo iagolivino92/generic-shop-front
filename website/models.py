@@ -27,5 +27,6 @@ class User(db.Model, UserMixin):
 class JoinRequest(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     shop_id = db.Column(db.Integer, db.ForeignKey('shop.id'))
-    accept_date = db.Column(db.DateTime(timezone=True), default=func.now())
-    accepted_by = db.Column(db.Integer, db.ForeignKey('user.id'))
+    creation_date = db.Column(db.DateTime(timezone=True), default=func.now())
+    processed_by = db.Column(db.Integer, db.ForeignKey('user.id'))
+    data = db.Column(db.String(1500))

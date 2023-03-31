@@ -7,7 +7,7 @@ from flask import url_for
 from flask_login import login_user
 from flask_login import login_required
 from flask_login import logout_user
-from .models import User
+from .models import User, JoinRequest
 from .models import Shop
 from werkzeug.security import generate_password_hash, check_password_hash
 from . import db
@@ -58,9 +58,8 @@ def emp_logout():
     return redirect(url_for('.emp_login'))
 
 
-# test method. signup endpoint should send a request to existing
-@auth.route('/direct-signup', methods=['GET', 'POST'])
-def direct_signup():
+@auth.route('/sign-up', methods=['GET', 'POST'])
+def join_signup():
     shop_name = request.args.get('shop')
     if not shop_name:
         return render_template('notfound.html')
@@ -69,7 +68,63 @@ def direct_signup():
         email = request.form.get('email')
         first_name = request.form.get('first_name')
         password = request.form.get('password')
-        confirm_password = request.form.get('confirm_password')
+
+        try:
+            user = User.query.filter_by(shop_id=shop.id, email=email).first()
+        except AttributeError as e:
+            flash(f'Shop does not exist!\nPlease add the correct shop in the URL!', category='error')
+            return redirect('/direct-signup?shop=<existent_shop_here>')
+        if user:
+            flash('Email already exists!', category='error')
+        elif len(email) < 4:
+            flash('Email must be greater than 4 chars.', category='error')
+        elif len(first_name) < 2:
+            flash('First name must be greater than 2 chars.', category='error')
+        elif len(password) < 7:
+            flash('Password must be greater than 7 chars.', category='error')
+        else:
+            # add join request to database
+            data = '{"first_name":"%s",' \
+                   '"last_name":"%s",' \
+                   '"email":"%s",' \
+                   '"contact":"%s",' \
+                   '"password":"%s",' \
+                   '"role":"%s"}' \
+                   % (request.form.get('first_name'), request.form.get('last_name'), request.form.get('email'),
+                      request.form.get('contact'), request.form.get('password'), request.form.get('role')
+                      )
+            new_join_request = JoinRequest(
+                shop_id=shop.id,
+                data=data
+            )
+
+            '''new_user = User(
+                email=email,
+                contact=contact,
+                first_name=first_name,
+                last_name=last_name,
+                password=generate_password_hash(password, method='sha256'),
+                role=role,
+                shop_id=shop.id
+            )'''
+            db.session.add(new_join_request)
+            db.session.commit()
+            flash('Join request sent!', category='success')
+            return redirect(url_for('.login') + f'?shop={shop_name}')
+
+    return render_template("sign-up.html", user=current_user)
+
+
+# test method. signup endpoint should send a request to existing
+@auth.route('/direct-signup', methods=['GET', 'POST'])
+# @admin_required
+def direct_signup():
+    # shop = Shop.query.filter_by(shop_id=current_user.shop_id).first()
+    shop = Shop.query.filter_by(id=1).first()
+    if request.method == 'POST':
+        email = request.form.get('email')
+        first_name = request.form.get('first_name')
+        password = request.form.get('password')
         contact = request.form.get('contact')
         last_name = request.form.get('last_name')
         role = request.form.get('role')
@@ -85,8 +140,6 @@ def direct_signup():
             flash('Email must be greater than 4 chars.', category='error')
         elif len(first_name) < 2:
             flash('First name must be greater than 2 chars.', category='error')
-        elif password != confirm_password:
-            flash('Password does not match.', category='error')
         elif len(password) < 7:
             flash('Password must be greater than 7 chars.', category='error')
         else:
@@ -103,9 +156,9 @@ def direct_signup():
             db.session.add(new_user)
             db.session.commit()
             flash('Account created!', category='success')
-            return redirect(url_for('.login')+f'?shop={shop_name}')
+            return redirect(url_for('views.home'))
 
-    return render_template("signup.html", user=current_user)
+    return render_template("direct-sign-up.html", user=current_user)
 
 
 @auth.route('/create-employee', methods=['GET', 'POST'])

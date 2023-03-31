@@ -18,7 +18,7 @@
         <td>{{ employee.contact }}</td>
         {% if user.role == 'Admin' %}
         <td>
-            <button type="button" class="delete-btn" onclick="delete_emp({{ employee.id }})">
+            <button type="button" class="delete-btn" onclick="location.href='/delete-employee/{{ employee.id }}'">
                 <span aria-hidden="true">&times;</span>
             </button>
         </td>

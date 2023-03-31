@@ -14,9 +14,14 @@
       <div class="navbar-nav">
           {% if user.is_authenticated %}
           <a class="nav-item nav-link" id="home" href="/">Home</a>
-          <a class="nav-item nav-link" id="logout" href="/logout">Logout</a>
-          <a class="nav-item nav-link" id="employees" href="/employees">Employees</a>
+              {% if user.role != 'emp' %}
+                <a class="nav-item nav-link" id="employees" href="/employees">Employees</a>
+              {% endif %}
+              {% if user.role == 'Admin' %}
+                <a id="join-requests" href="/join-requests">Join Requests</a>
+              {% endif %}
           <a class="nav-item nav-link" id="reports" href="/reports">Reports</a>
+          <a class="nav-item nav-link" id="logout" href="/logout">Logout</a>
           {% else %}
           <a class="nav-item nav-link" id="login" href="/login">Login</a>
           <a class="nav-item nav-link" id="signup" href="/direct-signup">Sign Up</a>
