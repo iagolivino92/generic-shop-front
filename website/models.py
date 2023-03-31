@@ -10,7 +10,6 @@ class Shop(db.Model):
     contact = db.Column(db.String(13))
     address = db.Column(db.String(240))
     users = db.relationship('User')
-    employees = db.relationship('Employee')
     join_requests = db.relationship('JoinRequest')
 
 
@@ -23,16 +22,6 @@ class User(db.Model, UserMixin):
     last_name = db.Column(db.String(25))
     role = db.Column(db.String(5))
     shop_id = db.Column(db.Integer, db.ForeignKey('shop.id'))
-
-
-class Employee(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(150), unique=True)
-    password = db.Column(db.String(500))
-    full_name = db.Column(db.String(100))
-    contact = db.Column(db.String(13))
-    shop_id = db.Column(db.Integer, db.ForeignKey('shop.id'))
-    created_by = db.Column(db.Integer, db.ForeignKey('user.id'))
 
 
 class JoinRequest(db.Model):

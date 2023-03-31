@@ -1,36 +1,34 @@
-import json
-
-from . import db
-from flask import request
 from flask import Blueprint
 from flask import render_template
-from flask import flash
 from flask import jsonify
-from flask_login import login_required
 from flask_login import current_user
+
+from .models import User
+from .utils import emp_required, admin_required, read_required
 
 views = Blueprint('views', __name__)
 
 
 @views.route('/')
-@login_required
+@read_required
 def home():
     return render_template("home.html", user=current_user)
 
 
 @views.route('/', subdomain='employee')
-@login_required
+@emp_required
 def emp_home():
     return render_template("employee.html", user=current_user)
 
 
-@views.route('/delete-note', methods=['POST'])
-def delete_note():
-    # data = json.loads(request.data)
-    # note_id = data['noteId']
-    # note = Note.query.get(note_id)
-    # if note:
-    # if note.user_id == current_user.id:
-    # db.session.delete(note)
-    # db.session.commit()
+@views.route('/employees')
+@read_required
+def employees():
+    emps = User.query.filter_by(shop_id=current_user.shop_id, role='emp').all()
+    return render_template("employees.html", user=current_user, employees=emps)
+
+
+@views.route('/delete-employee', methods=['POST'])
+@admin_required
+def delete_emp():
     return jsonify({})

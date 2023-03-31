@@ -19,7 +19,7 @@ def create_app():
     register_pages(app)
 
     # load user class - mandatory
-    from .models import Shop, User, Employee
+    from .models import Shop, User
     create_start_database(app)
 
     login_manager = LoginManager()

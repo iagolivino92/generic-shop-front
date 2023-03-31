@@ -1,0 +1,11 @@
+remove employee model - all mentions
+add session check when user try to access login page - if emp redirects to emp home, if not redirects to home
+refactor emp_login to use same as login
+creation of emp_required, read_required, admin_required to control resources access
+add create employee route and page
+add your employees page (to see available employees - shop based)
+fix role signup field
+add success and error returns to utils
+add delete employee route (no logic yet)
+add changelog file
+-----------------------------------------

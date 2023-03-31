@@ -7,9 +7,7 @@ from flask import url_for
 from flask_login import login_user
 from flask_login import login_required
 from flask_login import logout_user
-from flask_login import current_user
 from .models import User
-from .models import Employee
 from .models import Shop
 from werkzeug.security import generate_password_hash, check_password_hash
 from . import db
@@ -20,12 +18,19 @@ auth = Blueprint('auth', __name__)
 
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
+    if current_user.is_authenticated:
+        if current_user.role == 'emp':
+            return redirect(url_for('views.emp_home'))
+        else:
+            return redirect(url_for('views.home'))
     success, email, password, user = get_user_data(request, User, Shop)
     if success:
         if user:
             if check_password_hash(user.password, password):
                 flash('Logged in successfully!', category='success')
                 login_user(user, remember=True)
+                if current_user.role == 'emp':
+                    return redirect(url_for('views.emp_home'))
                 return redirect(url_for('views.home'))
             else:
                 flash('Incorrect password, try again', category='error')
@@ -36,18 +41,7 @@ def login():
 
 @auth.route('/login', methods=['GET', 'POST'], subdomain='employee')
 def emp_login():
-    success, email, password, user = get_user_data(request, Employee, Shop)
-    if success:
-        if user:
-            if check_password_hash(user.password, password):
-                flash('Logged in successfully!', category='success')
-                login_user(user, remember=True)
-                return redirect(url_for('views.emp_home'))
-            else:
-                flash('Incorrect password, try again', category='error')
-    if email and password:
-        flash('Employee/Shop does not exist!', category='error')
-    return render_template("login.html", user=current_user)
+    return login()
 
 
 @auth.route('/logout')
@@ -58,7 +52,7 @@ def logout():
 
 
 @auth.route('/logout', subdomain='employee')
-@login_required
+@emp_required
 def emp_logout():
     logout_user()
     return redirect(url_for('.emp_login'))
@@ -112,6 +106,47 @@ def direct_signup():
             return redirect(url_for('.login')+f'?shop={shop_name}')
 
     return render_template("signup.html", user=current_user)
+
+
+@auth.route('/create-employee', methods=['GET', 'POST'])
+def create_emp():
+    if request.method == 'POST':
+        email = request.form.get('email')
+        first_name = request.form.get('first_name')
+        password = request.form.get('password')
+        contact = request.form.get('contact')
+        last_name = request.form.get('last_name')
+
+        try:
+            user = User.query.filter_by(shop_id=current_user.shop_id, email=email, role='emp').first()
+        except AttributeError as e:
+            flash(f'Shop does not exist!\nPlease add the correct shop in the URL!', category='error')
+            return redirect('/direct-signup?shop=<existent_shop_here>')
+        if user:
+            flash('Email already exists!', category='error')
+        elif len(email) < 4:
+            flash('Email must be greater than 4 chars.', category='error')
+        elif len(first_name) < 2:
+            flash('First name must be greater than 2 chars.', category='error')
+        elif len(password) < 7:
+            flash('Password must be greater than 7 chars.', category='error')
+        else:
+            # add user to database
+            new_user = User(
+                email=email,
+                contact=contact,
+                first_name=first_name,
+                last_name=last_name,
+                password=generate_password_hash(password, method='sha256'),
+                role='emp',
+                shop_id=current_user.shop_id
+            )
+            db.session.add(new_user)
+            db.session.commit()
+            flash('Employee added!', category='success')
+            return redirect(url_for('views.employees'))
+
+    return render_template("create-employee.html", user=current_user)
 
 
 @auth.route('/create-shop', methods=['GET', 'POST'])
