@@ -18,3 +18,8 @@ update join request db model
 create accept/decline join request route
 create accept join request logic
 -----------------------------------------
+add admin shop/user validation
+remove commented lines
+restore shop validation for direct-signup
+add page shops (header and template)
+update role to mgr and reset admin

@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Admin - Shops{% endblock %}
+{% block content %}
+<h1 align="center">Shops</h1>
+<table id="shop-list">
+    <tr>
+        <th>Shop Name</th>
+        <th>Shop Email</th>
+        <th>Shop Contact</th>
+        <th>Shop Address</th>
+        <th>Action</th>
+    </tr>
+    {% for shop in shops %}
+    <tr>
+        <td>{{ shop.shop_name }}</td>
+        <td>{{ shop.email }}</td>
+        <td>{{ shop.contact }}</td>
+        <td>{{ shop.address }}</td>
+        <td>
+            <button type="button" class="accept-btn" onclick="location.href='/remove-shop/{{ shop.shop_id }}'">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

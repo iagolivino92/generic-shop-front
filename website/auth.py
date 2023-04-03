@@ -97,16 +97,6 @@ def join_signup():
                 shop_id=shop.id,
                 data=data
             )
-
-            '''new_user = User(
-                email=email,
-                contact=contact,
-                first_name=first_name,
-                last_name=last_name,
-                password=generate_password_hash(password, method='sha256'),
-                role=role,
-                shop_id=shop.id
-            )'''
             db.session.add(new_join_request)
             db.session.commit()
             flash('Join request sent!', category='success')
@@ -117,17 +107,19 @@ def join_signup():
 
 # test method. signup endpoint should send a request to existing
 @auth.route('/direct-signup', methods=['GET', 'POST'])
-# @admin_required
-def direct_signup():
-    # shop = Shop.query.filter_by(shop_id=current_user.shop_id).first()
-    shop = Shop.query.filter_by(id=1).first()
-    if request.method == 'POST':
-        email = request.form.get('email')
-        first_name = request.form.get('first_name')
-        password = request.form.get('password')
-        contact = request.form.get('contact')
-        last_name = request.form.get('last_name')
-        role = request.form.get('role')
+# @admin_required - need to activate token authentication
+def direct_signup(data=None):
+    shop = Shop.query.filter_by(id=Shop.query.filter_by(shop_name=request.args.get('shop')).first().id).first()
+    # shop = Shop.query.filter_by(id=1).first()
+    if request.method == 'POST' or data:
+        if data is None:
+            data = request.form
+        email = data.get('email')
+        first_name = data.get('first_name')
+        password = data.get('password')
+        contact = data.get('contact')
+        last_name = data.get('last_name')
+        role = data.get('role')
 
         try:
             user = User.query.filter_by(shop_id=shop.id, email=email).first()
@@ -156,6 +148,7 @@ def direct_signup():
             db.session.add(new_user)
             db.session.commit()
             flash('Account created!', category='success')
+
             return redirect(url_for('views.home'))
 
     return render_template("direct-sign-up.html", user=current_user)
@@ -197,7 +190,8 @@ def create_emp():
             db.session.add(new_user)
             db.session.commit()
             flash('Employee added!', category='success')
-            return redirect(url_for('views.employees'))
+            redirect(url_for('views.employees'))
+            return jsonify('{}'), 201
 
     return render_template("create-employee.html", user=current_user)
 

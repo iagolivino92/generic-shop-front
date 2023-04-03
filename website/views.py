@@ -3,12 +3,11 @@ import json
 import requests
 from flask import Blueprint, redirect, url_for, request, flash
 from flask import render_template
-from flask import jsonify
 from flask_login import current_user
-from .models import JoinRequest
+from .models import JoinRequest, Shop
 
 from .models import User
-from .utils import emp_required, admin_required, read_required
+from .utils import emp_required, admin_required, read_required, mgr_required
 from . import db
 
 views = Blueprint('views', __name__)
@@ -34,7 +33,7 @@ def employees():
 
 
 @views.route('/delete-employee/<id>')
-@admin_required
+@mgr_required
 def delete_emp(id):
     user = User.query.filter_by(id=id).first()
     db.session.delete(user)
@@ -44,14 +43,21 @@ def delete_emp(id):
 
 
 @views.route('/join-requests')
-@admin_required
+@mgr_required
 def join_requests():
     jrs = JoinRequest.query.filter_by(shop_id=current_user.shop_id).all()
     return render_template('join-requests.html', user=current_user, join_requests=jrs, json=json)
 
 
-@views.route('/accept-join/<id>')
+@views.route('/shops')
 @admin_required
+def shops():
+    shops = Shop.query.all()
+    return render_template('shops.html', user=current_user, shops=shops)
+
+
+@views.route('/accept-join/<id>')
+@mgr_required
 def accept_join(id):
     try:
         jr = JoinRequest.query.filter_by(id=id).first()
@@ -69,6 +75,6 @@ def accept_join(id):
 
 
 @views.route('/decline-join/<id>')
-@admin_required
+@mgr_required
 def decline_join(id):
     return 'ola'

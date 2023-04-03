@@ -17,8 +17,11 @@
               {% if user.role != 'emp' %}
                 <a class="nav-item nav-link" id="employees" href="/employees">Employees</a>
               {% endif %}
-              {% if user.role == 'Admin' %}
+              {% if user.role == 'admin' or user.role == 'mgr' %}
                 <a id="join-requests" href="/join-requests">Join Requests</a>
+              {% endif %}
+              {% if user.role == 'admin' %}
+                <a id="shops" href="/shops">Shops</a>
               {% endif %}
           <a class="nav-item nav-link" id="reports" href="/reports">Reports</a>
           <a class="nav-item nav-link" id="logout" href="/logout">Logout</a>

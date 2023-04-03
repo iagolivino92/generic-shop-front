@@ -1,4 +1,6 @@
-from flask import abort, jsonify
+import json
+
+from flask import abort, jsonify, Response
 from flask_login import current_user
 
 
@@ -24,7 +26,7 @@ def get_user_data(request, user_type, shop):
     return False, None, None, None
 
 
-def _login_required(f, role='Read'):
+def _login_required(f, role='read'):
     from functools import wraps
     from .models import User
 
@@ -32,10 +34,15 @@ def _login_required(f, role='Read'):
     def decorated_function(*args, **kwargs):
         try:
             user_role = current_user.role
-            if user_role == 'Admin' and role == 'Read':
-                user = User.query.filter_by(shop_id=current_user.shop_id, email=current_user.email, role=user_role).first()
+            if user_role == 'admin' and (role == 'read' or role == 'mgr'):
+                user = User.query.filter_by(shop_id=current_user.shop_id, email=current_user.email,
+                                            role=user_role).first()
+            elif user_role == 'mgr' and role == 'read':
+                user = User.query.filter_by(shop_id=current_user.shop_id, email=current_user.email,
+                                            role=user_role).first()
             else:
-                user = User.query.filter_by(shop_id=current_user.shop_id, email=current_user.email, role=role).first()
+                user = User.query.filter_by(shop_id=current_user.shop_id, email=current_user.email,
+                                            role=role).first()
         except AttributeError as e:
             user = None
         if not user:
@@ -50,11 +57,15 @@ def emp_required(f):
 
 
 def admin_required(f):
-    return _login_required(f, 'Admin')
+    return _login_required(f, 'admin')
 
 
 def read_required(f):
     return _login_required(f)
+
+
+def mgr_required(f):
+    return _login_required(f, 'mgr')
 
 
 def error_return(msg='', error=''):
@@ -63,3 +74,40 @@ def error_return(msg='', error=''):
 
 def success_return(msg=''):
     return jsonify('{"success":true, "message":"%s"}' % msg)
+
+
+def create_admin_instance():
+    from .models import User, Shop
+    if not Shop.query.filter_by(shop_name='admin_local').first():
+        create_admin_shop(Shop)
+        create_admin_user(User, Shop)
+    if not User.query.filter_by(email='admin@local').first():
+        create_admin_user(User, Shop)
+
+
+def create_admin_shop(shop):
+    from . import db
+    s = shop(
+        shop_name='admin_local',
+        email='admin@local',
+        contact='0000000000',
+        address='local_admin_shop'
+    )
+    db.session.add(s)
+    db.session.commit()
+
+
+def create_admin_user(user, shop):
+    from werkzeug.security import generate_password_hash
+    from . import db
+    u = user(
+        email='admin@local',
+        contact='00000000',
+        first_name='admin',
+        last_name='local',
+        password=generate_password_hash('localadministrator', method='sha256'),
+        role='admin',
+        shop_id=(shop.query.filter_by(shop_name='admin_local').first()).id
+    )
+    db.session.add(u)
+    db.session.commit()
