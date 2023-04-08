@@ -23,6 +23,9 @@
               {% if user.role == 'admin' %}
                 <a id="shops" href="/shops">Shops</a>
               {% endif %}
+              {% if user.role in ['admin', 'mgr'] %}
+                <a id="users" href="/users">Users</a>
+              {% endif %}
           <a class="nav-item nav-link" id="reports" href="/reports">Reports</a>
           <a class="nav-item nav-link" id="logout" href="/logout">Logout</a>
           {% else %}

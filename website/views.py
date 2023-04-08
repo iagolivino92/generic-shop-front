@@ -4,11 +4,13 @@ import requests
 from flask import Blueprint, redirect, url_for, request, flash
 from flask import render_template
 from flask_login import current_user
+from sqlalchemy import or_
+
 from .models import JoinRequest, Shop
 
 from .models import User
 from .utils import emp_required, admin_required, read_required, mgr_required
-from . import db
+from . import db, auth, utils
 
 views = Blueprint('views', __name__)
 
@@ -38,7 +40,6 @@ def delete_emp(id):
     user = User.query.filter_by(id=id).first()
     db.session.delete(user)
     db.session.commit()
-    # return jsonify({})
     return redirect(url_for('.employees'))
 
 
@@ -64,17 +65,34 @@ def accept_join(id):
     except:
         flash('something went wrong loading request!', category='error')
         return redirect(url_for('.join_requests'))
-    jr.processed_by = current_user.email
-    db.session.commit()
     data = json.loads(jr.data)
-    r = requests.post(request.url_root + '/direct-signup', data=data)
-    print(r.status_code)
-    if not r.status_code == 302:
-        flash('something went wrong in creating the account!', category='error')
+    utils.create_user(data)
+    if User.query.filter_by(email=data.get('email')).first():
+        jr.processed_by = current_user.email
+        jr.status = 'approved'
+        db.session.commit()
     return redirect(url_for('.join_requests'))
 
 
 @views.route('/decline-join/<id>')
 @mgr_required
 def decline_join(id):
-    return 'ola'
+    try:
+        jr = JoinRequest.query.filter_by(id=id).first()
+    except:
+        flash('something went wrong loading request!', category='error')
+        return redirect(url_for('.join_requests'))
+    jr.processed_by = current_user.email
+    jr.status = 'declined'
+    db.session.commit()
+    return redirect(url_for('.join_requests'))
+
+
+@views.route('/users')
+@mgr_required
+def users():
+    if current_user.role == 'admin':
+        _users = User.query.all()
+    else:
+        _users = User.query.filter((User.shop_id == current_user.shop_id) | (or_(User.role == 'mgr', User.role == 'read'))).all()
+    return render_template('users.html', user=current_user, users=_users)

@@ -8,7 +8,6 @@
         <th>Last Name</th>
         <th>Email</th>
         <th>Contact</th>
-        <th>Action</th>
     </tr>
     {% for employee in employees %}
     <tr>
@@ -16,7 +15,7 @@
         <td>{{ employee.last_name }}</td>
         <td>{{ employee.email }}</td>
         <td>{{ employee.contact }}</td>
-        {% if user.role == 'Admin' %}
+        {% if user.role in ['admin', 'mgr'] %}
         <td>
             <button type="button" class="delete-btn" onclick="location.href='/delete-employee/{{ employee.id }}'">
                 <span aria-hidden="true">&times;</span>

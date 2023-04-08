@@ -30,3 +30,4 @@ class JoinRequest(db.Model):
     creation_date = db.Column(db.DateTime(timezone=True), default=func.now())
     processed_by = db.Column(db.Integer, db.ForeignKey('user.id'))
     data = db.Column(db.String(1500))
+    status = db.Column(db.String(100))

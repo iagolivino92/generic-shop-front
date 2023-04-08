@@ -1,7 +1,9 @@
-import json
-
-from flask import abort, jsonify, Response
+from flask import abort, jsonify
 from flask_login import current_user
+from werkzeug.security import generate_password_hash
+
+from website import db
+from website.models import User, Shop
 
 
 def get_form_request_data(request):
@@ -98,8 +100,6 @@ def create_admin_shop(shop):
 
 
 def create_admin_user(user, shop):
-    from werkzeug.security import generate_password_hash
-    from . import db
     u = user(
         email='admin@local',
         contact='00000000',
@@ -110,4 +110,19 @@ def create_admin_user(user, shop):
         shop_id=(shop.query.filter_by(shop_name='admin_local').first()).id
     )
     db.session.add(u)
+    db.session.commit()
+
+
+def create_user(data):
+    shop = Shop.query.filter_by(id=Shop.query.filter_by(shop_name=data.get('shop')).first().id).first()
+    new_user = User(
+        email=data.get('email'),
+        contact=data.get('contact'),
+        first_name=data.get('first_name'),
+        last_name=data.get('last_name'),
+        password=generate_password_hash(data.get('password'), method='sha256'),
+        role=data.get('role'),
+        shop_id=shop.id
+    )
+    db.session.add(new_user)
     db.session.commit()

@@ -10,7 +10,7 @@ from flask_login import logout_user
 from .models import User, JoinRequest
 from .models import Shop
 from werkzeug.security import generate_password_hash, check_password_hash
-from . import db
+from . import db, utils
 from .utils import *
 
 auth = Blueprint('auth', __name__)
@@ -77,11 +77,11 @@ def join_signup():
         if user:
             flash('Email already exists!', category='error')
         elif len(email) < 4:
-            flash('Email must be greater than 4 chars.', category='error')
+            flash('Email must be greater than 3 chars.', category='error')
         elif len(first_name) < 2:
-            flash('First name must be greater than 2 chars.', category='error')
+            flash('First name must be greater than 1 chars.', category='error')
         elif len(password) < 7:
-            flash('Password must be greater than 7 chars.', category='error')
+            flash('Password must be greater than 6 chars.', category='error')
         else:
             # add join request to database
             data = '{"first_name":"%s",' \
@@ -107,13 +107,11 @@ def join_signup():
 
 # test method. signup endpoint should send a request to existing
 @auth.route('/direct-signup', methods=['GET', 'POST'])
-# @admin_required - need to activate token authentication
-def direct_signup(data=None):
-    shop = Shop.query.filter_by(id=Shop.query.filter_by(shop_name=request.args.get('shop')).first().id).first()
-    # shop = Shop.query.filter_by(id=1).first()
-    if request.method == 'POST' or data:
-        if data is None:
-            data = request.form
+@admin_required
+def direct_signup():
+    if request.method == 'POST':
+        data = request.form
+        shop = Shop.query.filter_by(id=Shop.query.filter_by(shop_name=data.get('shop')).first().id).first()
         email = data.get('email')
         first_name = data.get('first_name')
         password = data.get('password')
@@ -136,25 +134,16 @@ def direct_signup(data=None):
             flash('Password must be greater than 7 chars.', category='error')
         else:
             # add user to database
-            new_user = User(
-                email=email,
-                contact=contact,
-                first_name=first_name,
-                last_name=last_name,
-                password=generate_password_hash(password, method='sha256'),
-                role=role,
-                shop_id=shop.id
-            )
-            db.session.add(new_user)
-            db.session.commit()
+            utils.create_user(data)
             flash('Account created!', category='success')
 
-            return redirect(url_for('views.home'))
+            return redirect(url_for('views.users'))
 
     return render_template("direct-sign-up.html", user=current_user)
 
 
 @auth.route('/create-employee', methods=['GET', 'POST'])
+@mgr_required
 def create_emp():
     if request.method == 'POST':
         email = request.form.get('email')
@@ -162,6 +151,10 @@ def create_emp():
         password = request.form.get('password')
         contact = request.form.get('contact')
         last_name = request.form.get('last_name')
+        if current_user.role == 'admin':
+            shop_id = Shop.query.filter_by(shop_name=request.form.get('shop_name')).first().id
+        else:
+            shop_id = current_user.shop_id
 
         try:
             user = User.query.filter_by(shop_id=current_user.shop_id, email=email, role='emp').first()
@@ -185,18 +178,18 @@ def create_emp():
                 last_name=last_name,
                 password=generate_password_hash(password, method='sha256'),
                 role='emp',
-                shop_id=current_user.shop_id
+                shop_id=shop_id
             )
             db.session.add(new_user)
             db.session.commit()
             flash('Employee added!', category='success')
-            redirect(url_for('views.employees'))
-            return jsonify('{}'), 201
+            return redirect(url_for('views.employees'))
 
     return render_template("create-employee.html", user=current_user)
 
 
 @auth.route('/create-shop', methods=['GET', 'POST'])
+@admin_required
 def create_shop():
     if request.method == 'POST':
         shop_name = request.form.get('shop_name')
@@ -225,6 +218,6 @@ def create_shop():
             db.session.add(new_shop)
             db.session.commit()
             flash('Shop created!', category='success')
-            return redirect(f'/direct-signup?shop={shop_name}')
+            return redirect(url_for('views.shops'))
 
     return render_template('create-shop.html', user=current_user)

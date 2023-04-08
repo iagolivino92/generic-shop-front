@@ -8,8 +8,8 @@
         <th>Last Name</th>
         <th>Email</th>
         <th>Contact</th>
+        <th>Processed By</th>
         <th>Status</th>
-        <th>Action</th>
     </tr>
     {% for jr in join_requests %}
     <tr>
@@ -20,9 +20,10 @@
         <td>
             {% if jr.processed_by %}
             {{ jr.processed_by }}
-            {% else %}
-            pending
             {% endif %}
+        </td>
+        <td>
+            {{ json.loads(jr.data)['status'] }}
         </td>
         {% if not jr.processed_by %}
         <td>

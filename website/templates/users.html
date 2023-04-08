@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Admin - Shops{% endblock %}
+{% block content %}
+<h1 align="center">Users</h1>
+<table id="users-list">
+    <tr>
+        <th>ID</th>
+        <th>First Name</th>
+        <th>Last Name</th>
+        <th>Email</th>
+        <th>Contact</th>
+        <th>Role</th>
+        <th>Shop id</th>
+    </tr>
+    {% for user in users %}
+    <tr>
+        <td>{{ user.id }}</td>
+        <td>{{ user.first_name }}</td>
+        <td>{{ user.last_name }}</td>
+        <td>{{ user.email }}</td>
+        <td>{{ user.contact }}</td>
+        <td>{{ user.role }}</td>
+        <td>{{ user.shop_id }}</td>
+        <td>
+            <button type="button" class="accept-btn" onclick="location.href='/remove-user/{{ user.id }}'">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+<br>
+<button type="button" id="add_user" onclick="location.href='/direct-signup'">Create User</button>
+{% endblock %}

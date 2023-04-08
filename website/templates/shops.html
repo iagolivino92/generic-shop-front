@@ -4,6 +4,7 @@
 <h1 align="center">Shops</h1>
 <table id="shop-list">
     <tr>
+        <th>ID</th>
         <th>Shop Name</th>
         <th>Shop Email</th>
         <th>Shop Contact</th>
@@ -12,6 +13,7 @@
     </tr>
     {% for shop in shops %}
     <tr>
+        <td>{{ shop.id }}</td>
         <td>{{ shop.shop_name }}</td>
         <td>{{ shop.email }}</td>
         <td>{{ shop.contact }}</td>
@@ -24,4 +26,6 @@
     </tr>
     {% endfor %}
 </table>
+<br>
+<button type="button" id="add_shop" onclick="location.href='/create-shop'">Create Shop</button>
 {% endblock %}

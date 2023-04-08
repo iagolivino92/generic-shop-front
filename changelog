@@ -23,3 +23,13 @@ remove commented lines
 restore shop validation for direct-signup
 add page shops (header and template)
 update role to mgr and reset admin
+-----------------------------------------
+fix error messages for signup form
+create utils method to add user - to be used in outer scopes
+add mgr required annotation for create emp
+add flows for mgr and admin in create emp
+add admin required for create shop
+update redirect for create shop
+add new status colunm for join requests
+add mgr required annotation for delete-employee
+add users page and route
