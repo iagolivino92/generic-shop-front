@@ -113,8 +113,9 @@ def create_admin_user(user, shop):
     db.session.commit()
 
 
-def create_user(data):
-    shop = Shop.query.filter_by(id=Shop.query.filter_by(shop_name=data.get('shop')).first().id).first()
+def create_user(data, shop=None):
+    if not shop:
+        shop = Shop.query.filter_by(id=Shop.query.filter_by(shop_name=data.get('shop')).first().id).first()
     new_user = User(
         email=data.get('email'),
         contact=data.get('contact'),

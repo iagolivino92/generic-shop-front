@@ -4,6 +4,9 @@
 <h1 align="center">Join Requests</h1>
 <table id="join-list">
     <tr>
+        {% if user.role == 'admin' %}
+        <th>Shop ID</th>
+        {% endif %}
         <th>First Name</th>
         <th>Last Name</th>
         <th>Email</th>
@@ -13,6 +16,9 @@
     </tr>
     {% for jr in join_requests %}
     <tr>
+        {% if user.role == 'admin' %}
+        <td> {{ jr.shop_id }}</td>
+        {% endif %}
         <td>{{ json.loads(jr.data)['first_name'] }}</td>
         <td>{{ json.loads(jr.data)['last_name'] }}</td>
         <td>{{ json.loads(jr.data)['email'] }}</td>
@@ -23,7 +29,11 @@
             {% endif %}
         </td>
         <td>
-            {{ json.loads(jr.data)['status'] }}
+            {% if not jr.status %}
+            pending
+            {% else %}
+            {{ jr.status }}
+            {% endif %}
         </td>
         {% if not jr.processed_by %}
         <td>

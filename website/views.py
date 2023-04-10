@@ -30,7 +30,10 @@ def emp_home():
 @views.route('/employees')
 @read_required
 def employees():
-    emps = User.query.filter_by(shop_id=current_user.shop_id, role='emp').all()
+    if current_user.role == 'admin':
+        emps = User.query.filter_by(role='emp').all()
+    else:
+        emps = User.query.filter_by(shop_id=current_user.shop_id, role='emp').all()
     return render_template("employees.html", user=current_user, employees=emps)
 
 
@@ -46,7 +49,10 @@ def delete_emp(id):
 @views.route('/join-requests')
 @mgr_required
 def join_requests():
-    jrs = JoinRequest.query.filter_by(shop_id=current_user.shop_id).all()
+    if current_user.role == 'admin':
+        jrs = JoinRequest.query.all()
+    else:
+        jrs = JoinRequest.query.filter_by(shop_id=current_user.shop_id).all()
     return render_template('join-requests.html', user=current_user, join_requests=jrs, json=json)
 
 
@@ -65,8 +71,11 @@ def accept_join(id):
     except:
         flash('something went wrong loading request!', category='error')
         return redirect(url_for('.join_requests'))
+    if jr.status:
+        flash('join request already processed!', category='error')
+        return redirect(url_for('.join_requests'))
     data = json.loads(jr.data)
-    utils.create_user(data)
+    utils.create_user(data, shop=Shop.query.filter_by(id=jr.shop_id).first())
     if User.query.filter_by(email=data.get('email')).first():
         jr.processed_by = current_user.email
         jr.status = 'approved'
@@ -81,6 +90,9 @@ def decline_join(id):
         jr = JoinRequest.query.filter_by(id=id).first()
     except:
         flash('something went wrong loading request!', category='error')
+        return redirect(url_for('.join_requests'))
+    if jr.status:
+        flash('join request already processed!', category='error')
         return redirect(url_for('.join_requests'))
     jr.processed_by = current_user.email
     jr.status = 'declined'
