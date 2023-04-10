@@ -33,3 +33,8 @@ update redirect for create shop
 add new status colunm for join requests
 add mgr required annotation for delete-employee
 add users page and route
+-----------------------------------------
+add shop id in employee view
+add emp id in employee view
+add shop in in join requests view
+add status column for join requests
