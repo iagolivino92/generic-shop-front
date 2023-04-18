@@ -15,27 +15,28 @@
         <th>Status</th>
     </tr>
     {% for jr in join_requests %}
+        {% set data = json.loads(jr.get('data').replace("'", '"')) %}
     <tr>
         {% if user.role == 'admin' %}
-        <td> {{ jr.shop_id }}</td>
+        <td> {{ jr.get('shop_id') }}</td>
         {% endif %}
-        <td>{{ json.loads(jr.data)['first_name'] }}</td>
-        <td>{{ json.loads(jr.data)['last_name'] }}</td>
-        <td>{{ json.loads(jr.data)['email'] }}</td>
-        <td>{{ json.loads(jr.data)['contact'] }}</td>
+        <td>{{ data.get('first_name') }}</td>
+        <td>{{ data.get('last_name') }}</td>
+        <td>{{ data.get('email') }}</td>
+        <td>{{ data.get('contact') }}</td>
         <td>
-            {% if jr.processed_by %}
-            {{ jr.processed_by }}
+            {% if jr.get('processed_by') %}
+            {{ jr.get('processed_by') }}
             {% endif %}
         </td>
         <td>
-            {% if not jr.status %}
+            {% if not jr.get('status') %}
             pending
             {% else %}
-            {{ jr.status }}
+            {{ jr.get('status') }}
             {% endif %}
         </td>
-        {% if not jr.processed_by %}
+        {% if not jr.get('processed_by') %}
         <td>
             <button type="button" class="accept-btn" onclick="location.href='/accept-join/{{ jr.id }}'">
                 <span aria-hidden="true">Accept</span>
