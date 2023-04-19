@@ -1,10 +1,11 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager
+from website.user import _User
 
 # database object
 db = SQLAlchemy()
 DB_NAME = "database.db"
+API_URL = 'http://giftip.com:5001/api/v1/'
 
 
 def create_app():
@@ -15,20 +16,7 @@ def create_app():
     app = Flask(__name__)
     app.config['SERVER_NAME'] = 'giftip.com:5000'
     app.config['SECRET_KEY'] = 'AF662CA93EE8375AF4D4C9A68FC975102AF31297C3DD2801DB655D8CA005EEA0'
-    app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{DB_NAME}'
     register_pages(app)
-
-    # load user class - mandatory
-    from .models import Shop, User
-    create_start_database(app)
-
-    login_manager = LoginManager()
-    login_manager.login_view = 'auth.login'
-    login_manager.init_app(app)
-
-    @login_manager.user_loader
-    def load_user(id):
-        return User.query.get(int(id))
 
     return app
 
@@ -44,15 +32,3 @@ def register_pages(app):
 
     app.register_blueprint(views, url_prefix='/')
     app.register_blueprint(auth, url_prefix='/')
-
-
-def create_start_database(app):
-    """
-    start database
-    :param app:
-    :return: None
-    """
-    # create/start database
-    db.init_app(app)
-    with app.app_context():
-        db.create_all()

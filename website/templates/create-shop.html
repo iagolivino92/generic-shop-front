@@ -1,23 +1,27 @@
 {% extends "base.html" %}
-{% block title %}Create Shop{% endblock %}
+{% block title %}Admin - Create Shop{% endblock %}
 {% block content %}
 <form method="POST">
-    <h3 align="center">Create Shop</h3>
+    {% if prefill %}
+        <h3 align="center">Edit Shop</h3>
+    {% else %}
+        <h3 align="center">Create Shop</h3>
+    {% endif %}
     <div class="form-group">
         <label for="shop_name">Shop name</label>
-        <input type="text" class="form-control" id="shop_name" name="shop_name" placeholder="Shop name">
+        <input type="text" class="form-control" id="shop_name" name="shop_name" placeholder="Shop name" value="{{ prefill.shop_name }}">
     </div>
      <div class="form-group">
         <label for="email">Shop email</label>
-        <input type="email" class="form-control" id="email" name="email" placeholder="Shop email">
+        <input type="email" class="form-control" id="email" name="email" placeholder="Shop email" value="{{ prefill.email }}">
     </div>
     <div class="form-group">
         <label for="contact">Shop contact</label>
-        <input type="text" class="form-control" id="contact" name="contact" placeholder="Shop contact">
+        <input type="text" class="form-control" id="contact" name="contact" placeholder="Shop contact" value="{{ prefill.contact }}">
     </div>
     <div class="form-group">
         <label for="address">Shop address</label>
-        <input type="text" class="form-control" id="address" name="address" placeholder="Shop address">
+        <input type="text" class="form-control" id="address" name="address" placeholder="Shop address" value="{{ prefill.address }}">
     </div>
     <br/>
     <button class="btn btn-primary" type="submit">Submit</button>

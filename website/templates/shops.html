@@ -9,20 +9,26 @@
         <th>Shop Email</th>
         <th>Shop Contact</th>
         <th>Shop Address</th>
-        <th>Action</th>
     </tr>
     {% for shop in shops %}
     <tr>
-        <td>{{ shop.id }}</td>
-        <td>{{ shop.shop_name }}</td>
-        <td>{{ shop.email }}</td>
-        <td>{{ shop.contact }}</td>
-        <td>{{ shop.address }}</td>
+        <td>{{ shop.get('id') }}</td>
+        <td>{{ shop.get('shop_name') }}</td>
+        <td>{{ shop.get('email') }}</td>
+        <td>{{ shop.get('contact') }}</td>
+        <td>{{ shop.get('address') }}</td>
         <td>
-            <button type="button" class="accept-btn" onclick="location.href='/remove-shop/{{ shop.shop_id }}'">
+            <button type="button" class="accept-btn" onclick="location.href='/remove-shop/{{ shop.id }}'">
                 <span aria-hidden="true">&times;</span>
             </button>
         </td>
+        {% if user.role == 'admin' %}
+        <td>
+            <button type="button" class="accept-btn" onclick="location.href='/create-shop?s={{ shop.id }}'">
+                <span aria-hidden="true">Edit</span>
+            </button>
+        </td>
+        {% endif %}
     </tr>
     {% endfor %}
 </table>

@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Admin - Shops{% endblock %}
+{% block title %}Admin - Users{% endblock %}
 {% block content %}
 <h1 align="center">Users</h1>
 <table id="users-list">
@@ -12,21 +12,32 @@
         <th>Role</th>
         <th>Shop id</th>
     </tr>
-    {% for user in users %}
-    <tr>
-        <td>{{ user.id }}</td>
-        <td>{{ user.first_name }}</td>
-        <td>{{ user.last_name }}</td>
-        <td>{{ user.email }}</td>
-        <td>{{ user.contact }}</td>
-        <td>{{ user.role }}</td>
-        <td>{{ user.shop_id }}</td>
-        <td>
-            <button type="button" class="accept-btn" onclick="location.href='/remove-user/{{ user.id }}'">
-                <span aria-hidden="true">&times;</span>
-            </button>
-        </td>
-    </tr>
+    {% for u in users %}
+        {% if (user.role == 'mgr' and u.get('role') == 'admin') or (user.role != 'admin' and user.shop_id != u.shop_id) or (u.role == 'emp') %}
+            {% set err = u %}
+        {% else %}
+            <tr>
+                <td>{{ u.get('id') }}</td>
+                <td>{{ u.get('first_name') }}</td>
+                <td>{{ u.get('last_name') }}</td>
+                <td>{{ u.get('email') }}</td>
+                <td>{{ u.get('contact') }}</td>
+                <td>{{ u.get('role') }}</td>
+                <td>{{ u.get('shop_id') }}</td>
+                <td>
+                    <button type="button" class="accept-btn" onclick="location.href='/remove-user/{{ u.get('id') }}'">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </td>
+                {% if u.role != 'admin' %}
+                <td>
+                    <button type="button" class="edit-btn" onclick="location.href='/direct-signup?u={{ u.get('id') }}'">
+                        <span aria-hidden="true">Edit</span>
+                    </button>
+                </td>
+                {% endif %}
+            </tr>
+        {% endif %}
     {% endfor %}
 </table>
 <br>
