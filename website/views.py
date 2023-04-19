@@ -10,7 +10,7 @@ views = Blueprint('views', __name__)
 
 @views.errorhandler(401)
 def not_authorized(e):
-    flash('user not logged!', category='error')
+    flash('user not cannot access this page', category='error')
     return redirect(url_for('auth.login'))
 
 

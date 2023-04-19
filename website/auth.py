@@ -131,7 +131,7 @@ def join_signup():
 
 # test method. signup endpoint should send a request to existing
 @auth.route('/direct-signup', methods=['GET', 'POST'])
-@admin_required
+@mgr_required
 def direct_signup():
     # put together
     user = get_current_user()
