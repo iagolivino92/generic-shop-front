@@ -46,9 +46,9 @@ def employees():
         utils.logout_user()
         return redirect(url_for('auth.login'))
     if user.role == 'admin':
-        r = requests.get(API_URL + 'employees')
+        r = requests.get(API_URL + 'employees', headers={"authorization": user.token})
     else:
-        r = requests.get(API_URL + f'employees/shop/{user.shop_id}')
+        r = requests.get(API_URL + f'employees/shop/{user.shop_id}', headers={"authorization": user.token})
     if r.status_code == 200:
         emps = r.json()
     return render_template("employees.html", user=user, employees=emps)
@@ -64,9 +64,9 @@ def join_requests():
         return redirect(url_for('auth.login'))
     jrs = {}
     if user.role == 'admin':
-        r = requests.get(API_URL + 'join-requests')
+        r = requests.get(API_URL + 'join-requests', headers={"authorization": user.token})
     else:
-        r = requests.get(API_URL + f'join-requests/shop/{user.shop_id}')
+        r = requests.get(API_URL + f'join-requests/shop/{user.shop_id}', headers={"authorization": user.token})
     if r.status_code != 204:
         jrs = r.json()
     return render_template('join-requests.html', user=user, join_requests=jrs, json=json)
@@ -80,7 +80,7 @@ def shops():
         flash('session expired')
         utils.logout_user()
         return redirect(url_for('auth.login'))
-    s = requests.get(API_URL + 'shops').json()
+    s = requests.get(API_URL + 'shops', headers={"authorization": user.token}).json()
     return render_template('shops.html', user=user, shops=s)
 
 
@@ -94,9 +94,9 @@ def users():
         return redirect(url_for('auth.login'))
     _users = {}
     if user.role == 'admin':
-        r = requests.get(API_URL + 'users')
+        r = requests.get(API_URL + 'users', headers={"authorization": user.token})
     else:
-        r = requests.get(API_URL + f'users/shop/{user.shop_id}')
+        r = requests.get(API_URL + f'users/shop/{user.shop_id}', headers={"authorization": user.token})
     if r.status_code == 200:
         _users = r.json()
     return render_template('users.html', user=user, users=_users)
@@ -110,7 +110,7 @@ def accept_join(id):
         flash('session expired')
         utils.logout_user()
         return redirect(url_for('auth.login'))
-    r = requests.patch(API_URL + f'join-request/{id}', data={"email": user.email, "action": "accept"})
+    r = requests.patch(API_URL + f'join-request/{id}', data={"email": user.email, "action": "accept"}, headers={"authorization": user.token})
     if r.status_code == 200:
         flash('join request processed', category='success')
     else:
@@ -126,7 +126,7 @@ def decline_join(id):
         flash('session expired')
         utils.logout_user()
         return redirect(url_for('auth.login'))
-    r = requests.patch(API_URL + f'join-request/{id}', data={"email": user.email, "action": "decline"})
+    r = requests.patch(API_URL + f'join-request/{id}', data={"email": user.email, "action": "decline"}, headers={"authorization": user.token})
     if r.status_code == 200:
         flash('join request processed', category='success')
     else:
@@ -142,7 +142,7 @@ def delete_emp(id):
         flash('session expired')
         utils.logout_user()
         return redirect(url_for('auth.login'))
-    r = requests.delete(API_URL + f'employee/{id}')
+    r = requests.delete(API_URL + f'employee/{id}', headers={"authorization": user.token})
     if r.status_code == 201:
         flash('employee deleted', category='success')
     else:
@@ -158,7 +158,7 @@ def delete_user(id):
         flash('session expired')
         utils.logout_user()
         return redirect(url_for('auth.login'))
-    r = requests.delete(API_URL + f'user/{id}')
+    r = requests.delete(API_URL + f'user/{id}', headers={"authorization": user.token})
     if r.status_code == 201:
         flash('user deleted', category='success')
     else:
@@ -174,7 +174,7 @@ def delete_shop(id):
         flash('session expired')
         utils.logout_user()
         return redirect(url_for('auth.login'))
-    r = requests.delete(API_URL + f'shop/{id}')
+    r = requests.delete(API_URL + f'shop/{id}', headers={"authorization": user.token})
     if r.status_code == 201:
         flash('shop deleted', category='success')
     else:

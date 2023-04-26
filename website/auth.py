@@ -101,7 +101,7 @@ def join_signup():
         email = request.form.get('email')
         first_name = request.form.get('first_name')
         password = request.form.get('password')
-        r = requests.get(API_URL + f'shop/{shop_name}')
+        r = requests.get(API_URL + f'shop/{shop_name}?api-key={request.args.get("api-key")}')
         if r.status_code == 204:
             flash('shop does not exist', category='error')
             return render_template("sign-up.html", user=user)
@@ -155,17 +155,17 @@ def direct_signup():
         else:
             # add user to database
             if 'u' in request.args:
-                r = requests.patch(API_URL + f'user/{request.args.get("u")}', data=request.form)
+                r = requests.patch(API_URL + f'user/{request.args.get("u")}', data=request.form, headers={"authorization": user.token})
             else:
-                r = requests.put(API_URL + 'user', data=request.form)
+                r = requests.put(API_URL + 'user', data=request.form, headers={"authorization": user.token})
             if r.status_code != 201:
                 flash(f'Could not create user! Server error: {r.json()}', category='success')
             return redirect(url_for('views.users'))
 
     if 'u' in request.args:
-        r = requests.get(API_URL + f'user/{request.args.get("u")}')
+        r = requests.get(API_URL + f'user/{request.args.get("u")}', headers={"authorization": user.token})
         if r.status_code == 200:
-            r2 = requests.get(API_URL + f'shop/{r.json().get("shop_id")}')
+            r2 = requests.get(API_URL + f'shop/{r.json().get("shop_id")}', headers={"authorization": user.token})
             data = r.json()
             data['shop_name'] = r2.json().get('shop_name')
             return render_template("direct-sign-up.html", user=user, prefill=data)
@@ -195,16 +195,16 @@ def create_emp():
         else:
             data = request.form.to_dict()
             data['role'] = 'emp'
-            r = requests.put(API_URL + 'employees', data=data)
+            r = requests.put(API_URL + 'employees', data=data, headers={"authorization": user.token})
             if r.status_code == 201:
                 flash('Employee added!', category='success')
                 return redirect(url_for('views.employees'))
             flash(f'could not add employee! Server error: {r.json()}', category='success')
 
     if 'e' in request.args:
-        r = requests.get(API_URL + f'employee/{request.args.get("e")}')
+        r = requests.get(API_URL + f'employee/{request.args.get("e")}', headers={"authorization": user.token})
         if r.status_code == 200:
-            r2 = requests.get(API_URL + f'shop/{r.json().get("shop_id")}')
+            r2 = requests.get(API_URL + f'shop/{r.json().get("shop_id")}', headers={"authorization": user.token})
             data = r.json()
             data['shop_name'] = r2.json().get('shop_name')
             return render_template("create-employee.html", user=user, prefill=data)
@@ -237,16 +237,16 @@ def create_shop():
             flash('Address must be greater than 5 chars.', category='error')
         else:
             if 's' in request.args:
-                r = requests.patch(API_URL + f'shop/{request.args.get("s")}', data=request.form)
+                r = requests.patch(API_URL + f'shop/{request.args.get("s")}', data=request.form, headers={"authorization": user.token})
             else:
-                r = requests.put(API_URL + 'shops', data=request.form)
+                r = requests.put(API_URL + 'shops', data=request.form, headers={"authorization": user.token})
             if r.status_code == 201:
                 flash('Shop created!', category='success')
                 return redirect(url_for('views.shops'))
             flash(f'could not create shop. Server error: {r.json()}', category='success')
 
     if 's' in request.args:
-        r = requests.get(API_URL + f'shop/{request.args.get("s")}')
+        r = requests.get(API_URL + f'shop/{request.args.get("s")}', headers={"authorization": user.token})
         if r.status_code == 200:
             data = r.json()
             return render_template("create-shop.html", user=user, prefill=data)
