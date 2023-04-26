@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Shop - Entries{% endblock %}
+{% block content %}
+<h1 align="center">Entries</h1>
+<table id="entry-list">
+    <tr>
+        <th>Entry ID</th>
+        <th>Shop ID</th>
+        <th>Join Request ID</th>
+        <!--th>Hash</th-->
+    </tr>
+    {% for entry in entries %}
+    {% if not entry.get('join_id') %}
+    <tr>
+        <td> {{ entry.get('id') }}</td>
+        <td>{{ entry.get('shop_id') }}</td>
+        <td>{{ entry.get('join_id') }}</td>
+        <!--td>{{ entry.get('hash') }}</td-->
+        <td>
+            <a class="link" href="/sign-up?key={{ entry.get('hash') }}">
+                <span aria-hidden="true">Link to share</span>
+            </a>
+        </td>
+    </tr>
+    {% endif %}
+    {% endfor %}
+</table>
+<button type="button" onclick="location.href='/create-entry'">Create entry</button>
+{% endblock %}

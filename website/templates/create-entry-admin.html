@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Admin - Create Entry{% endblock %}
+{% block content %}
+<form method="POST">
+    <h3 align="center">Entry</h3>
+    <div class="form-group">
+        <label for="shop_id">Shop ID</label>
+        <input type="text" class="form-control" id="shop_id" name="shop_id" placeholder="Shop id">
+    </div>
+    <br/>
+    <button class="btn btn-primary" type="submit">Create!</button>
+</form>
+{% endblock %}

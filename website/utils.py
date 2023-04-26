@@ -2,7 +2,7 @@ import json
 import flask
 import requests
 from json import JSONEncoder
-from flask import abort, jsonify
+from flask import abort, redirect, url_for
 from . import API_URL
 from .user import _User
 
@@ -35,7 +35,14 @@ def login_user(user):
 
 
 def logout_user():
-    flask.session.pop('user')
+    try:
+        flask.session.pop('user')
+    except KeyError as e:
+        print(e)
+
+
+def redirect_to_login(user):
+    return redirect(url_for('auth.login') + f'?shop={user.shop_id}')
 
 
 def _login_required(f, role='read'):

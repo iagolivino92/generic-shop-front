@@ -15,6 +15,12 @@ auth = Blueprint('auth', __name__)
 @auth.errorhandler(401)
 def not_authorized(e):
     flash('user not logged!', category='error')
+    return redirect(url_for('.login')+f'?shop={get_current_user().shop_id}')
+
+
+@auth.errorhandler(404)
+def not_found(e):
+    flash('page not found', category='error')
     return redirect(url_for('.login'))
 
 
@@ -57,12 +63,12 @@ def logout():
     if not user.is_authenticated:
         flash('session expired')
         logout_user()
-        return redirect(url_for('auth.login'))
+        return redirect_to_login(user)
     headers = {'Authorization': f'{user.token}'}
     r = requests.delete(API_URL + 'token', headers=headers)
     if r.status_code == 200:
         logout_user()
-        return redirect(url_for('.login'))
+        return redirect_to_login(user)
     flash(f'Could not logout. Server response: {r.json()}', category='error')
     if user.role == 'emp':
         return redirect(url_for('views.emp_home'))
@@ -73,10 +79,11 @@ def logout():
 @emp_required
 def emp_logout():
     user = get_current_user()
+    shop = user.shop_id
     if not user.is_authenticated:
         flash('session expired')
         logout_user()
-        return redirect(url_for('auth.login'))
+        return redirect_to_login(user)
     headers = {'Authorization': f'{user.token}'}
     r = requests.delete(API_URL + 'token', headers=headers)
     if r.status_code == 200:
@@ -89,19 +96,11 @@ def emp_logout():
 @auth.route('/sign-up', methods=['GET', 'POST'])
 def join_signup():
     user = get_current_user()
-    if not user.is_authenticated:
-        flash('session expired')
-        logout_user()
-        return redirect(url_for('auth.login'))
-    headers = {'Authorization': f'{user.token}'}
-    shop_name = request.args.get('shop')
-    if not shop_name:
-        return render_template('notfound.html')
     if request.method == 'POST':
         email = request.form.get('email')
         first_name = request.form.get('first_name')
         password = request.form.get('password')
-        r = requests.get(API_URL + f'shop/{shop_name}?api-key={request.args.get("api-key")}')
+        r = requests.get(API_URL + f'shop/unknown?api-key={request.args.get("key")}')
         if r.status_code == 204:
             flash('shop does not exist', category='error')
             return render_template("sign-up.html", user=user)
@@ -122,11 +121,16 @@ def join_signup():
                     "password": f"{request.form.get('password')}",
                     "role": f"{request.form.get('role')}",
                     "shop_id": shop_id}
-            r = requests.put(API_URL + 'create-join-request', headers=headers, data=data)
+            r = requests.put(API_URL + f'create-join-request?api-key={request.args.get("key")}', data=data)
             if r.status_code == 201:
                 flash('Join request sent!', category='success')
-            return redirect(url_for('.login') + f'?shop={shop_name}')
-    return render_template("sign-up.html", user=user)
+                return redirect(url_for('.login') + f'?shop={shop_id}')
+    _check = requests.get(API_URL + f'key/{request.args.get("key")}')
+    if _check.status_code == 200:
+        if not _check.json().get('join_id'):
+            return render_template("sign-up.html", user=user)
+        flash('key already used', category='error')
+    return redirect(url_for(".login"))
 
 
 # test method. signup endpoint should send a request to existing
@@ -135,10 +139,11 @@ def join_signup():
 def direct_signup():
     # put together
     user = get_current_user()
+    shop = user.shop_id
     if not user.is_authenticated:
         flash('session expired')
         logout_user()
-        return redirect(url_for('auth.login'))
+        return redirect_to_login(user)
     # all this
 
     if request.method == 'POST':
@@ -180,7 +185,7 @@ def create_emp():
     if not user.is_authenticated:
         flash('session expired')
         logout_user()
-        return redirect(url_for('auth.login'))
+        return redirect_to_login(user)
 
     if request.method == 'POST':
         email = request.form.get('email')
@@ -219,7 +224,7 @@ def create_shop():
     if not user.is_authenticated:
         flash('session expired')
         logout_user()
-        return redirect(url_for('auth.login'))
+        return redirect_to_login(user)
 
     if request.method == 'POST':
         shop_name = request.form.get('shop_name')

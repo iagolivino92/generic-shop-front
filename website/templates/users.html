@@ -41,5 +41,7 @@
     {% endfor %}
 </table>
 <br>
+{% if user.role == 'admin' %}
 <button type="button" id="add_user" onclick="location.href='/direct-signup'">Create User</button>
+{% endif %}
 {% endblock %}
