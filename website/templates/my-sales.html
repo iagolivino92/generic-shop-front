@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}My Sales{% endblock %}
+{% block content %}
+    <h1>My Sales</h1>
+    <span>User: {{ user.id }} | Shop: {{ user.shop_id }}</span>
+    <br>
+    <table id="sales-list">
+        <tr>
+            <th>ID</th>
+            <th>Value</th>
+            <th>Rate</th>
+            <th>Commission</th>
+        </tr>
+        {% for sale in sales %}
+        <tr>
+            <td>{{ sale.id }}</td>
+            <td>{{ sale.value }}</td>
+            <td>{{ sale.rate }}</td>
+            <td>{{ sale.commission }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    <br>
+    <button type="button" onclick="location.href='/add-sale'">Add Sale</button>
+{% endblock %}

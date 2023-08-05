@@ -51,6 +51,7 @@
     </tr>
     {% endfor %}
 </table>
+<br>
 {% if user.role in ['admin', 'mgr'] %}
 <button type="button" onclick="location.href='/entries'">Entries page</button>
 {% endif %}

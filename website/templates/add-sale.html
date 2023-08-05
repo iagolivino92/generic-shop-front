@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Add Sale{% endblock %}
+{% block content %}
+<form method="POST">
+    <h3>Add Sale</h3>
+    <div>
+        <label for="value">Value (€):</label>
+        <input type="number" id="value" name="value" placeholder="Enter value" onblur="calculate_commission()">
+    </div>
+    <div>
+        <label for="rate">Rate (%):</label>
+        <input type="number" id="rate" name="rate" placeholder="Enter rate" onblur="calculate_commission()">
+    </div>
+    <div>
+        <label for="commission">Commission (€):</label>
+        <input disabled type="number" id="commission" name="commission">
+    </div>
+    <br/>
+    <button type="submit">Save</button>
+</form>
+<script>
+    function calculate_commission(){
+        const value = document.getElementById('value').value;
+        const rate = document.getElementById('rate').value;
+        const commission = document.getElementById('commission');
+        if (rate !== '' && value !== '') {
+            commission.value = (value * (rate / 100)).toFixed(2);
+        }else {
+            commission.value = ''
+        }
+    }
+</script>
+{% endblock %}

@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %}Admin - Shops{% endblock %}
 {% block content %}
-<h1 align="center">Shops</h1>
+<h1>Shops</h1>
 <table id="shop-list">
     <tr>
         <th>ID</th>
@@ -18,13 +18,13 @@
         <td>{{ shop.get('contact') }}</td>
         <td>{{ shop.get('address') }}</td>
         <td>
-            <button type="button" class="accept-btn" onclick="location.href='/remove-shop/{{ shop.id }}'">
+            <button type="button" onclick="location.href='/remove-shop/{{ shop.id }}'">
                 <span aria-hidden="true">&times;</span>
             </button>
         </td>
         {% if user.role == 'admin' %}
         <td>
-            <button type="button" class="accept-btn" onclick="location.href='/create-shop?s={{ shop.id }}'">
+            <button type="button" onclick="location.href='/create-shop?s={{ shop.id }}'">
                 <span aria-hidden="true">Edit</span>
             </button>
         </td>

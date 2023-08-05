@@ -1,5 +1,14 @@
 {% extends "base.html" %}
-{% block title %}Home{% endblock %}
+{% set text_ = '' %}
+{% if user.role == 'admin' %}
+    {% set text_ = 'Admin Home Page' %}
+{% elif user.role == 'mgr' %}
+    {% set text_ = 'Manager Home Page' %}
+{% else %}
+    {% set text_ = 'Employee Home Page' %}
+{% endif %}
+
 {% block content %}
-<h1 align="center">Home page</h1>
+    <h1 align="center">{{ text_ }}</h1>
 {% endblock %}
+{% block title %} {{ text_ }} {% endblock %}

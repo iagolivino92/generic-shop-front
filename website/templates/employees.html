@@ -1,40 +1,41 @@
 {% extends "base.html" %}
 {% block title %}Shop - Employees{% endblock %}
 {% block content %}
-<h1 align="center">Your Employees</h1>
-<table id="employees-list">
-    <tr>
-        {% if user.role == 'admin' %}
-        <th>Shop id</th>
-        {% endif %}
-        <th>First Name</th>
-        <th>Last Name</th>
-        <th>Email</th>
-        <th>Contact</th>
-    </tr>
-    {% for employee in employees %}
-    <tr>
-        {% if user.role == 'admin' %}
-        <td>{{ employee.shop_id }}</td>
-        {% endif %}
-        <td>{{ employee.first_name }}</td>
-        <td>{{ employee.last_name }}</td>
-        <td>{{ employee.email }}</td>
-        <td>{{ employee.contact }}</td>
-        {% if user.role in ['admin', 'mgr'] %}
-        <td>
-            <button type="button" class="delete-btn" onclick="location.href='/remove-employee/{{ employee.id }}'">
-                <span aria-hidden="true">&times;</span>
-            </button>
-        </td>
-        <td>
-            <button type="button" class="delete-btn" onclick="location.href='/create-employee?e={{ employee.id }}'">
-                <span aria-hidden="true">Edit</span>
-            </button>
-        </td>
-        {% endif %}
-    </tr>
-    {% endfor %}
-</table>
-<button type="button" onclick="location.href='/create-employee'">Add Employee</button>
+    <h1>Your Employees</h1>
+    <table id="employees-list">
+        <tr>
+            {% if user.role == 'admin' %}
+            <th>Shop id</th>
+            {% endif %}
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Email</th>
+            <th>Contact</th>
+        </tr>
+        {% for employee in employees %}
+        <tr>
+            {% if user.role == 'admin' %}
+            <td>{{ employee.shop_id }}</td>
+            {% endif %}
+            <td>{{ employee.first_name }}</td>
+            <td>{{ employee.last_name }}</td>
+            <td>{{ employee.email }}</td>
+            <td>{{ employee.contact }}</td>
+            {% if user.role in ['admin', 'mgr'] %}
+            <td>
+                <button type="button" class="delete-btn" onclick="location.href='/remove-employee/{{ employee.id }}'">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </td>
+            <td>
+                <button type="button" class="delete-btn" onclick="location.href='/create-employee?e={{ employee.id }}'">
+                    <span aria-hidden="true">Edit</span>
+                </button>
+            </td>
+            {% endif %}
+        </tr>
+        {% endfor %}
+    </table>
+    <br>
+    <button type="button" onclick="location.href='/create-employee'">Add Employee</button>
 {% endblock %}
