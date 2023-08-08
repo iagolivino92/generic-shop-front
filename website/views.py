@@ -298,3 +298,14 @@ def add_sale():
         r = requests.post(API_URL + 'sales', headers={"authorization": user.token}, data=request.form)
 
     return render_template('add-sale.html', user=user)
+
+
+@views.route('/reports')
+@read_required
+def reports():
+    user = utils.get_current_user()
+    if not user.is_authenticated:
+        flash('session expired')
+        utils.logout_user()
+        return redirect_to_login(user)
+    return render_template('reports.html', user=user)
