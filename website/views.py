@@ -1,4 +1,6 @@
 import json
+
+import flask
 import requests
 from flask import Blueprint, redirect, url_for, flash, request
 from flask import render_template
@@ -272,18 +274,34 @@ def my_sales():
         flash('session expired')
         utils.logout_user()
         return redirect_to_login(user)
-    return render_template('my-sales.html', user=user, sales='')
+    _sales = {}
+    r = requests.get(API_URL + f'sales/user/{user.id}', headers={"authorization": user.token})
+    if r.status_code == 200:
+        _sales = r.json()
+    else:
+        flash(f'could not find sales. Server error: {r.json()}', category='error')
+    return render_template('my-sales.html', user=user, sales=_sales)
 
 
 @views.route('/sales-details')
 @mgr_required
 def sales_details():
     user = utils.get_current_user()
+    foreign_user = utils.get_foreign_user()
     if not user.is_authenticated:
         flash('session expired')
         utils.logout_user()
         return redirect_to_login(user)
-    return render_template('sales-details.html', user=user)
+    sales_ = {}
+    # get user by email (/user - args: &email=<user_email> - flask.session['foreign_user']
+    r = requests.get(API_URL + f"user?email={foreign_user.get_email()}", headers={"authorization": user.token})
+    if r.status_code != 200:
+        flash(f'could not retrieve user information. Server error: {r.json()}')
+    else:
+        user_id = r.json().get('id')
+        r_ = requests.get(API_URL + f'sales/user/{user_id}', headers={"authorization": user.token})
+        sales_ = r_.json()
+    return render_template('sales-details.html', user=user, sales=sales_)
 
 
 @views.route('/add-sale', methods=['GET', 'POST'])
@@ -296,8 +314,38 @@ def add_sale():
         return redirect_to_login(user)
     if request.method == 'POST':
         r = requests.post(API_URL + 'sales', headers={"authorization": user.token}, data=request.form)
-
+        if r.status_code != 201:
+            flash(f'could not update sale. Server error: {r.json()}')
     return render_template('add-sale.html', user=user)
+
+
+@views.route('/update-sale/<int:sale_id>')
+@mgr_required
+def update_sale(sale_id):
+    user = utils.get_current_user()
+    if not user.is_authenticated:
+        flash('session expired')
+        utils.logout_user()
+        return redirect_to_login(user)
+    form = {key: value for key, value in request.args.items()}
+    r = requests.patch(API_URL + f'sale/{sale_id}', headers={"authorization": user.token}, data=form)
+    if r.status_code == 201:
+        flash('sale updated!', category='success')
+    else:
+        flash(f'could not update sale. Server error: {r.json()}', category='error')
+    return redirect(url_for('.sales_details'))
+
+
+@views.route('/save')
+@mgr_required
+def save_foreign_email():
+    foreign_user = utils.get_foreign_user()
+    email = request.args.get('u')
+    if email:
+        foreign_user.email = email
+        utils.save_foreign_user(foreign_user)
+        return redirect(url_for('.sales_details'))
+    return redirect(url_for('.sales'))
 
 
 @views.route('/reports')

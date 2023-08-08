@@ -2,4 +2,51 @@
 {% block title %}Sales{% endblock %}
 {% block content %}
     <h1>Sales Details</h1>
+    <table id="sales-list">
+        <tr>
+            <th>ID</th>
+            <th>Value (€)</th>
+            <th>Rate (%)</th>
+            <th>Commission (€)</th>
+            <th>Status</th>
+            <th>Creation date</th>
+            <th>Last update</th>
+        </tr>
+        {% for sale in sales %}
+        <tr id="{{ sale.id }}">
+            <td id="sale_id">{{ sale.id }}</td>
+            <td id="sale_value_{{ sale.id }}">{{ sale.value }}</td>
+            <td id="sale_rate_{{ sale.id }}">{{ sale.rate }}</td>
+            <td id="sale_commission_{{ sale.id }}">{{ sale.commission }}</td>
+            <td id="sale_status_{{ sale.id }}">{{ sale.status }}</td>
+            <td id="sale_creation_{{ sale.id }}">{{ sale.creation_date }}</td>
+            <td id="sale_update_{{ sale.id }}">{{ sale.last_update_date }}</td>
+            <td>
+                <button id="edit_{{ sale.id }}" onclick="make_editable({{ sale.id }})">Edit</button>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    <script>
+        function make_editable(sale_id){
+            const button_ = document.getElementById('edit_'+sale_id);
+            const row = document.getElementById(sale_id);
+            const sale_value = document.getElementById('sale_value_'+sale_id);
+            const sale_rate = document.getElementById('sale_rate_'+sale_id);
+            const sale_commission = document.getElementById('sale_commission_'+sale_id);
+            const sale_status = document.getElementById('sale_status_'+sale_id);
+            if (button_.textContent === 'Edit'){
+                sale_value.setAttribute('contenteditable', '');
+                sale_rate.setAttribute('contenteditable', '');
+                sale_commission.setAttribute('contenteditable', '');
+                sale_status.setAttribute('contenteditable', '');
+                button_.textContent = 'Save';
+            } else {
+                var xhttp = new XMLHttpRequest();
+                xhttp.open("GET", window.location.origin+"/update-sale/"+sale_id+"?status="+sale_status.textContent+"&value="+sale_value.textContent+"&rate="+sale_rate.textContent+"&commission="+sale_commission.textContent, true);
+                xhttp.send();
+                location.href="/sales-details";
+            }
+        }
+    </script>
 {% endblock %}

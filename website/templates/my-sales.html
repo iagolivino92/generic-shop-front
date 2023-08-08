@@ -7,9 +7,12 @@
     <table id="sales-list">
         <tr>
             <th>ID</th>
-            <th>Value</th>
-            <th>Rate</th>
-            <th>Commission</th>
+            <th>Value (€)</th>
+            <th>Rate (%)</th>
+            <th>Commission (€)</th>
+            <th>Status</th>
+            <th>Creation date</th>
+            <th>Last update</th>
         </tr>
         {% for sale in sales %}
         <tr>
@@ -17,6 +20,9 @@
             <td>{{ sale.value }}</td>
             <td>{{ sale.rate }}</td>
             <td>{{ sale.commission }}</td>
+            <td>{{ sale.status }}</td>
+            <td>{{ sale.creation_date }}</td>
+            <td>{{ sale.last_update_date }}</td>
         </tr>
         {% endfor %}
     </table>
