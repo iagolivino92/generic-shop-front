@@ -38,7 +38,9 @@
     <script>
         function save_user(){
             const drop = document.getElementById('users_drop')
-            localStorage.setItem('user', drop.value)
+            var xhttp = new XMLHttpRequest();
+            xhttp.open("GET", window.location.origin+"/save?u="+drop.value, true);
+            xhttp.send();
         }
     </script>
 {% endblock %}

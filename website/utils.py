@@ -4,6 +4,7 @@ import requests
 from json import JSONEncoder
 from flask import abort, redirect, url_for
 from . import API_URL
+from .foreign_user import ForeignUser
 from .user import _User
 
 
@@ -29,6 +30,16 @@ def get_current_user():
     return _user
 
 
+def get_foreign_user():
+    try:
+        _foreign = ForeignUser()
+        _foreign.set_data(json.loads(flask.session['foreign_user']))
+    except Exception as e:
+        print(e)
+        _foreign = ForeignUser()
+    return _foreign
+
+
 def login_user(user):
     user.is_authenticated = True
     flask.session['user'] = UserEncoder().encode(user)
@@ -39,6 +50,10 @@ def logout_user():
         flask.session.pop('user')
     except KeyError as e:
         print(e)
+
+
+def save_foreign_user(user):
+    flask.session['foreign_user'] = UserEncoder().encode(user)
 
 
 def redirect_to_login(user):
