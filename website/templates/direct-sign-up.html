@@ -3,37 +3,37 @@
 {% block content %}
 <form method="POST">
     {% if prefill %}
-        <h3 align="center">Edit User</h3>
+        <h3>Edit User</h3>
     {% else %}
-        <h3 align="center">Create User</h3>
+        <h3>Create User</h3>
     {% endif %}
-    <div class="form-group">
+    <div>
         <label for="shop">Shop name</label>
-        <input type="text" class="form-control" id="shop" name="shop" placeholder="Enter shop name" value="{{ prefill.shop_name }}">
+        <input type="text" id="shop" name="shop" placeholder="Enter shop name" value="{{ prefill.shop_name }}">
     </div>
-    <div class="form-group">
+    <div>
         <label for="email">Email Address</label>
-        <input type="email" class="form-control" id="email" name="email" placeholder="Enter email" value="{{ prefill.email }}">
+        <input type="email" id="email" name="email" placeholder="Enter email" value="{{ prefill.email }}">
     </div>
-     <div class="form-group">
+     <div>
         <label for="contact">Contact</label>
-        <input type="text" class="form-control" id="contact" name="contact" placeholder="Enter contact" value="{{ prefill.contact }}">
+        <input type="text" id="contact" name="contact" placeholder="Enter contact" value="{{ prefill.contact }}">
     </div>
-    <div class="form-group">
+    <div>
         <label for="first_name">First Name</label>
-        <input type="text" class="form-control" id="first_name" name="first_name" placeholder="Enter first name" value="{{ prefill.first_name }}">
+        <input type="text" id="first_name" name="first_name" placeholder="Enter first name" value="{{ prefill.first_name }}">
     </div>
-    <div class="form-group">
+    <div>
         <label for="last_name">Last Name</label>
-        <input type="text" class="form-control" id="last_name" name="last_name" placeholder="Enter last name" value="{{ prefill.last_name }}">
+        <input type="text" id="last_name" name="last_name" placeholder="Enter last name" value="{{ prefill.last_name }}">
     </div>
-    <div class="form-group">
+    <div>
         <label for="password">Password</label>
-        <input type="password" class="form-control" id="password" name="password" placeholder="Enter password">
+        <input type="password" id="password" name="password" placeholder="Enter password">
     </div>
-    <div class="form-group">
+    <div>
         <label for="role">Role</label>
-        <select class="form-control" id="role" name="role">
+        <select id="role" name="role">
             <option> </option>
             <option value="mgr">Manager
                 {% if prefill.role == 'mgr' %}
@@ -48,6 +48,6 @@
         </select>
     </div>
     <br/>
-    <button class="btn btn-primary" type="submit">Submit</button>
+    <button type="submit">Submit</button>
 </form>
 {% endblock %}

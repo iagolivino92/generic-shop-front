@@ -116,7 +116,8 @@ def accept_join(id):
         flash('session expired')
         utils.logout_user()
         return redirect_to_login(user)
-    r = requests.patch(API_URL + f'join-request/{id}', data={"email": user.email, "action": "accept"}, headers={"authorization": user.token})
+    r = requests.patch(API_URL + f'join-request/{id}', data={"email": user.email, "action": "accept"},
+                       headers={"authorization": user.token})
     if r.status_code == 200:
         flash('join request processed', category='success')
     else:
@@ -132,7 +133,8 @@ def decline_join(id):
         flash('session expired')
         utils.logout_user()
         return redirect_to_login(user)
-    r = requests.patch(API_URL + f'join-request/{id}', data={"email": user.email, "action": "decline"}, headers={"authorization": user.token})
+    r = requests.patch(API_URL + f'join-request/{id}', data={"email": user.email, "action": "decline"},
+                       headers={"authorization": user.token})
     if r.status_code == 200:
         flash('join request processed', category='success')
     else:
@@ -225,3 +227,85 @@ def create_entry():
     else:
         flash(f'could not create entry. Server error: {r.json()}', category='error')
     return redirect(url_for('.entries'))
+
+
+@views.route('/sales', methods=['GET', 'POST'])
+@read_required
+def sales():
+    user = utils.get_current_user()
+    if not user.is_authenticated:
+        flash('session expired')
+        utils.logout_user()
+        return redirect_to_login(user)
+    if request.method == 'GET':
+        if user.role == 'emp':
+            return redirect(url_for('.my_sales'))
+        if user.role == 'mgr':
+            r = requests.get(API_URL + f'users/shop/{user.shop_id}', headers={"authorization": user.token})
+            users_ = r.json()
+            r_ = requests.get(API_URL + f'shop/{user.shop_id}', headers={"authorization": user.token})
+            shop = r_.json()
+            sid = shop.get('shop_name')
+            return render_template('sales.html', user=user, users=users_, sid=sid)
+        r = requests.get(API_URL + 'shops', headers={"authorization": user.token})
+        shops_ = r.json()
+        return render_template('sales.html', user=user, shops=shops_)
+    elif request.method == 'POST':
+        shop_ = request.form.get('shops_drop')
+        user_ = request.form.get('users')
+        if shop_:
+            shop_by_name = requests.get(API_URL + f'/shop/{shop_}', headers={"authorization": user.token})
+            shop_id = shop_by_name.json().get('id')
+            r_ = requests.get(API_URL + f'users/shop/{shop_id}', headers={"authorization": user.token})
+            users_ = r_.json()
+            return render_template('sales.html', user=user, users=users_, sid=shop_)
+        elif user_:
+            return redirect(url_for('.sales_details'))
+    return render_template('sales.html', user=user)
+
+
+@views.route('/my-sales')
+@read_required
+def my_sales():
+    user = utils.get_current_user()
+    if not user.is_authenticated:
+        flash('session expired')
+        utils.logout_user()
+        return redirect_to_login(user)
+    return render_template('my-sales.html', user=user, sales='')
+
+
+@views.route('/sales-details')
+@mgr_required
+def sales_details():
+    user = utils.get_current_user()
+    if not user.is_authenticated:
+        flash('session expired')
+        utils.logout_user()
+        return redirect_to_login(user)
+    return render_template('sales-details.html', user=user)
+
+
+@views.route('/add-sale', methods=['GET', 'POST'])
+@read_required
+def add_sale():
+    user = utils.get_current_user()
+    if not user.is_authenticated:
+        flash('session expired')
+        utils.logout_user()
+        return redirect_to_login(user)
+    if request.method == 'POST':
+        r = requests.post(API_URL + 'sales', headers={"authorization": user.token}, data=request.form)
+
+    return render_template('add-sale.html', user=user)
+
+
+@views.route('/reports')
+@read_required
+def reports():
+    user = utils.get_current_user()
+    if not user.is_authenticated:
+        flash('session expired')
+        utils.logout_user()
+        return redirect_to_login(user)
+    return render_template('reports.html', user=user)

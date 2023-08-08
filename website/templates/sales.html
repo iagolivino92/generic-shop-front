@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Sales{% endblock %}
+{% block content %}
+    <h1>Sales</h1>
+    {% if not sid %}
+    <div>
+        <form method="POST">
+            {% if user.role == 'admin' %}
+            <label for="shops_drop">Shop:</label>
+            <select id="shops_drop" name="shops_drop">
+                {% for shop in shops %}
+                <option value='{{ shop.shop_name }}'>{{ shop.shop_name }}</option>
+                {% endfor %}
+            </select>
+            {% endif %}
+            <button type="submit">Load Users</button>
+        </form>
+    </div>
+    {% else %}
+    <div>
+        <label for="current_shop">Shop:</label>
+        <input id="current_shop" disabled value="{{ sid }}">
+    </div>
+    <form method="POST">
+        {% if user.role != 'emp' %}
+        <label for="users_drop">Users:</label>
+        <select id="users_drop" name="users">
+            {% for user in users %}
+            <option value="{{ user.email }}">{{ user.email }}</option>
+            {% endfor %}
+        </select>
+        {% endif %}
+        <button type="submit" onclick="save_user()">See Details</button>
+    </form>
+    {% endif %}
+    <br>
+    <button type="button" onclick="location.href='/my-sales'">My Sales</button>
+    <script>
+        function save_user(){
+            const drop = document.getElementById('users_drop')
+            localStorage.setItem('user', drop.value)
+        }
+    </script>
+{% endblock %}

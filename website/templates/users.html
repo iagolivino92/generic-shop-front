@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %}Admin - Users{% endblock %}
 {% block content %}
-<h1 align="center">Users</h1>
+<h1>Users</h1>
 <table id="users-list">
     <tr>
         <th>ID</th>
@@ -25,13 +25,13 @@
                 <td>{{ u.get('role') }}</td>
                 <td>{{ u.get('shop_id') }}</td>
                 <td>
-                    <button type="button" class="accept-btn" onclick="location.href='/remove-user/{{ u.get('id') }}'">
+                    <button type="button" onclick="location.href='/remove-user/{{ u.get('id') }}'">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </td>
                 {% if u.role != 'admin' %}
                 <td>
-                    <button type="button" class="edit-btn" onclick="location.href='/direct-signup?u={{ u.get('id') }}'">
+                    <button type="button" onclick="location.href='/direct-signup?u={{ u.get('id') }}'">
                         <span aria-hidden="true">Edit</span>
                     </button>
                 </td>
