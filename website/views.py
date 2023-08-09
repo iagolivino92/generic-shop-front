@@ -342,6 +342,7 @@ def save_foreign_email():
     foreign_user = utils.get_foreign_user()
     email = request.args.get('u')
     if email:
+        utils.clear_foreign_user()
         foreign_user.email = email
         utils.save_foreign_user(foreign_user)
         return redirect(url_for('.sales_details'))

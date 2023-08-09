@@ -56,6 +56,13 @@ def save_foreign_user(user):
     flask.session['foreign_user'] = UserEncoder().encode(user)
 
 
+def clear_foreign_user():
+    try:
+        flask.session.pop('foreign_user')
+    except KeyError as e:
+        print(e)
+
+
 def redirect_to_login(user):
     return redirect(url_for('auth.login') + f'?shop={user.shop_id}')
 
