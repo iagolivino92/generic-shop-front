@@ -13,7 +13,7 @@
         <th>Shop id</th>
     </tr>
     {% for u in users %}
-        {% if (user.role == 'mgr' and u.get('role') == 'admin') or (user.role != 'admin' and user.shop_id != u.shop_id) or (u.role == 'emp') %}
+        {% if (user.role == 'mgr' and u.get('role') == 'admin') or (user.role != 'admin' and user.shop_id != u.shop_id) %}
             {% set err = u %}
         {% else %}
             <tr>

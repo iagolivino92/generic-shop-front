@@ -1,5 +1,73 @@
 {% extends "base.html" %}
 {% block title %}Reports{% endblock %}
 {% block content %}
-    <h1>Reports</h1>
+<h1>Reports</h1>
+<div>
+    <label for="start_date">From: </label>
+    <input type="date" id="start_date" min="" max="" onchange="set_to_minimum()" >
+    <label for="end_date">To: </label>
+    <input type="date" id="end_date" min="" max="" value="" >
+</div>
+<br/>
+<div>
+<button id="search_btn" onclick="get_reports()">Load</button>
+</div>
+<br/>
+<div>
+    <table id="sales-list">
+        <tr>
+            <th>ID</th>
+            <th>Value (€)</th>
+            <th>Rate (%)</th>
+            <th>Commission (€)</th>
+            <th>Status</th>
+            <th>Creation date</th>
+            <th>Last update</th>
+        </tr>
+        {% for sale in sales %}
+        <tr>
+            <td>{{ sale.get('id') }}</td>
+            <td>{{ sale.get('value') }}</td>
+            <td>{{ sale.get('rate') }}</td>
+            <td>{{ sale.get('commission') }}</td>
+            <td>{{ sale.get('status') }}</td>
+            <td>{{ sale.get('creation_date') }}</td>
+            <td>{{ sale.get('last_update_date') }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+<script>
+    function set_calendar(){
+        const from_ = document.getElementById('start_date');
+        const to_ = document.getElementById('end_date');
+        var today = new Date().toISOString().split('T')[0];
+        from_.setAttribute('value', today);
+        from_.setAttribute('max', today);
+        to_.setAttribute('value', today);
+        to_.setAttribute('max', today);
+    }
+    function set_to_minimum(){
+        const from_ = document.getElementById('start_date');
+        const to_ = document.getElementById('end_date');
+        to_.setAttribute('min', from_.value);
+    }
+    function get_reports(){
+            const from_ = document.getElementById('start_date');
+            const to_ = document.getElementById('end_date');
+            var params = 'start_date='+from_.value+'&end_date='+to_.value;
+            var http = new XMLHttpRequest();
+            http.onreadystatechange = function() {
+                if (http.status == 200) {
+                    document.open();
+                    document.write(http.responseText);
+                    document.close();
+                }
+            };
+            http.open("POST", window.location.origin+"/reports", true);
+            http.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+            http.send(params);
+    }
+    window.onload = set_calendar();
+</script>
 {% endblock %}
