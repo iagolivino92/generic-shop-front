@@ -30,17 +30,15 @@
             {% endfor %}
         </select>
         {% endif %}
-        <button type="submit" onclick="save_user()">See Details</button>
+        <a type="button" onclick="save_user()">See Details</a>
     </form>
     {% endif %}
     <br>
     <button type="button" onclick="location.href='/my-sales'">My Sales</button>
     <script>
         function save_user(){
-            const drop = document.getElementById('users_drop')
-            var xhttp = new XMLHttpRequest();
-            xhttp.open("GET", window.location.origin+"/save?u="+drop.value, true);
-            xhttp.send();
+            const drop = document.getElementById('users_drop');
+            location.href="/save?u="+drop.value
         }
     </script>
 {% endblock %}
