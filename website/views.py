@@ -349,7 +349,7 @@ def save_foreign_email():
     return redirect(url_for('.sales'))
 
 
-@views.route('/reports')
+@views.route('/reports', methods=['GET', 'POST'])
 @read_required
 def reports():
     user = utils.get_current_user()
@@ -357,4 +357,12 @@ def reports():
         flash('session expired')
         utils.logout_user()
         return redirect_to_login(user)
-    return render_template('reports.html', user=user)
+    _sales = {}
+    if request.method == 'POST':
+        # pass start_date and end_date as parameter for get method
+        start_date = request.form.get("start_date")
+        end_date = request.form.get("end_date")
+        r = requests.get(API_URL + f'sales?s={start_date}&e={end_date}', headers={"authorization": user.token})
+        _sales = r.json()
+    return render_template('reports.html', user=user, sales=_sales)
+
