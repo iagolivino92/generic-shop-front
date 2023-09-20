@@ -11,11 +11,11 @@ API_URL = 'http://giftip.com:5001/api/v1/'
 def create_app():
     """
     app initialization
-    secret_key is a sha256 for 'giftipapp' string
+    secret_key is a sha256 for 'generic-shop' string
     """
     app = Flask(__name__)
-    app.config['SERVER_NAME'] = 'giftip.com:5000'
-    app.config['SECRET_KEY'] = 'AF662CA93EE8375AF4D4C9A68FC975102AF31297C3DD2801DB655D8CA005EEA0'
+    app.config['SERVER_NAME'] = 'generic-shop.com:5000'
+    app.config['SECRET_KEY'] = 'fb857939e24a93872b67c392149b363ca0e988a3c7739325b38c913b234c3cfb'
     register_pages(app)
 
     return app

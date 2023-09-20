@@ -1,5 +1,10 @@
-### Pre requisites
+### Prerequisites
 Python 3.7 installed
+
+`127.0.0.1	generic-shop.com` and `127.0.0.1	employee.generic-shop.com` entries in hosts file:
+ - `/private/etc/hosts` for mac
+ - `/etc/hosts` for linux
+ - `C:\Windows\System32\Drivers\etc\hosts` for windows
 
 [generic-shop-api](https://github.com/iagolivino92/generic-shop-api "generic-shop-api project") project running
 
