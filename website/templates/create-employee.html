@@ -4,8 +4,10 @@
 <form method="POST">
     {% if prefill %}
         <h3>Edit Employee</h3>
+        <input type="hidden" name="type" value="update">
     {% else %}
         <h3>Add Employee</h3>
+        <input type="hidden" name="type" value="create">
     {% endif %}
     {% if user.role == 'admin' %}
     <div >
