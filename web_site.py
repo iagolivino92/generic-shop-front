@@ -1,8 +1,6 @@
 import flask
-from flask import redirect, url_for, flash, request
-
+from flask import redirect, flash, request
 from website import create_app
-from website.utils import get_current_user, redirect_to_login
 
 app = create_app()
 
@@ -21,4 +19,4 @@ def not_found(e):
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()

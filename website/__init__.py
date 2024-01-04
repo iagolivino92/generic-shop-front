@@ -5,7 +5,7 @@ from website.user import _User
 # database object
 db = SQLAlchemy()
 DB_NAME = "database.db"
-API_URL = 'http://giftip.com:5001/api/v1/'
+API_URL = 'http://generic-shop.com:5001/api/v1/'
 
 
 def create_app():

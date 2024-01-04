@@ -164,7 +164,7 @@ def direct_signup():
             else:
                 r = requests.put(API_URL + 'user', data=request.form, headers={"authorization": user.token})
             if r.status_code != 201:
-                flash(f'Could not create user! Server error: {r.json()}', category='success')
+                flash(f'Could not create user! Server error: {r.json()}', category='error')
             return redirect(url_for('views.users'))
 
     if 'u' in request.args:
@@ -188,6 +188,7 @@ def create_emp():
         return redirect_to_login(user)
 
     if request.method == 'POST':
+        request_type = request.form.get('type')
         email = request.form.get('email')
         first_name = request.form.get('first_name')
         password = request.form.get('password')
@@ -200,9 +201,13 @@ def create_emp():
         else:
             data = request.form.to_dict()
             data['role'] = 'emp'
-            r = requests.put(API_URL + 'employees', data=data, headers={"authorization": user.token})
+            if request_type == 'update':
+                r = requests.patch(API_URL + f'employee/{request.args.get("e")}', data=data, headers={"authorization": user.token})
+            else:
+                r = requests.put(API_URL + 'employees', data=data, headers={"authorization": user.token})
             if r.status_code == 201:
-                flash('Employee added!', category='success')
+                message = 'Employee added!' if request_type == 'create' else 'Employee updated!'
+                flash(message, category='success')
                 return redirect(url_for('views.employees'))
             flash(f'could not add employee! Server error: {r.json()}', category='success')
 
