@@ -1,4 +1,3 @@
-import flask
 from flask import redirect, url_for, flash, request
 
 from website import create_app
