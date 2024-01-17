@@ -1,5 +1,4 @@
 import json
-
 import flask
 import requests
 from flask import Blueprint, redirect, url_for, flash, request

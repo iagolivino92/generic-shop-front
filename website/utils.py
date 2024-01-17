@@ -24,8 +24,7 @@ def get_current_user():
         _user.set_data(json.loads(flask.session['user']))
         _user.token = json.loads(flask.session['user']).get('token')
         _user.is_authenticated = is_user_allowed(_user.token)
-    except Exception as e:
-        print(e)
+    except KeyError:
         _user = _User()
     return _user
 
