@@ -28,11 +28,32 @@ def not_found(e):
 def login():
     user = get_current_user()
     if user.is_authenticated:
-        if user.role == 'emp':
-            return redirect(url_for('views.emp_home'))
-        else:
-            return redirect(url_for('views.home'))
+        return redirect(url_for('views.home'))
 
+    if request.method == 'POST':
+        args = request.url.split('?')[1] if 'shop' in request.args else ''
+        r = requests.post(API_URL + f'token?{args}', data=request.form)
+        if r.status_code == 201:
+            token = json.loads(r.json()).get('access_token')
+            user = _User()
+            user.set_data(requests.get(API_URL + f'user?token={token}').json())
+            user.token = token
+            if not user.role == 'emp':
+                login_user(user)
+                flash('Logged in successfully!', category='success')
+                return redirect(url_for('views.home'))
+            else:
+                flash('Failed to login. Error: please use employee portal. http://employee.generic-shop.com:5000', category='error')
+        else:
+            flash(f'Failed to login. Error: {r.json()}', category='error')
+    return render_template("login.html", user=user)
+
+
+@auth.route('/login', methods=['GET', 'POST'], subdomain='employee')
+def emp_login():
+    user = get_current_user()
+    if user.is_authenticated:
+        return redirect(url_for('views.emp_home'))
     if request.method == 'POST':
         args = request.url.split('?')[1] if 'shop' in request.args else ''
         r = requests.post(API_URL + f'token?{args}', data=request.form)
@@ -43,17 +64,10 @@ def login():
             user.token = token
             login_user(user)
             flash('Logged in successfully!', category='success')
-            if user.role == 'emp':
-                return redirect(url_for('views.emp_home'))
-            return redirect(url_for('views.home'))
+            return redirect(url_for('views.emp_home'))
         else:
             flash(f'Failed to login. Error: {r.json()}', category='error')
     return render_template("login.html", user=user)
-
-
-@auth.route('/login', methods=['GET', 'POST'], subdomain='employee')
-def emp_login():
-    return login()
 
 
 @auth.route('/logout')
