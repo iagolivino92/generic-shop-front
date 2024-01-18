@@ -58,7 +58,7 @@
             var params = 'start_date='+from_.value+'&end_date='+to_.value;
             var http = new XMLHttpRequest();
             http.onreadystatechange = function() {
-                if (http.status == 200) {
+                if (http.status === 200) {
                     document.open();
                     document.write(http.responseText);
                     document.close();

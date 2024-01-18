@@ -5,15 +5,18 @@
     <h3>Add Sale</h3>
     <div>
         <label for="value">Value (€):</label>
-        <input type="number" id="value" name="value" placeholder="Enter value" onblur="calculate_commission()">
+        <input type="number" id="value" name="value" placeholder="Enter value" onchange="calculate_commission()">
     </div>
     <div>
         <label for="rate">Rate (%):</label>
-        <input type="number" id="rate" name="rate" placeholder="Enter rate" onblur="calculate_commission()">
+        <input type="number" id="rate" name="rate" placeholder="Enter rate" onchange="calculate_commission()">
     </div>
     <div>
         <label for="commission">Commission (€):</label>
-        <input disabled type="number" id="commission" name="commission">
+        <input readonly type="number" id="commission" name="commission">
+    </div>
+    <div>
+        <input readonly hidden type="number" id="user_id" name="user_id" value="{{ user.id }}">
     </div>
     <br/>
     <button type="submit">Save</button>

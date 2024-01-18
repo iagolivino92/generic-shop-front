@@ -2,14 +2,14 @@ from flask import Blueprint
 from flask import render_template
 from flask import request
 from flask import flash
-from flask import redirect
-from flask import url_for
+from flask_cors import CORS
 
 from .user import _User
 from .utils import *
 from .utils import _login_required
 
 auth = Blueprint('auth', __name__)
+CORS(auth)
 
 
 @auth.errorhandler(401)
@@ -25,10 +25,14 @@ def not_found(e):
 
 
 @auth.route('/login', methods=['GET', 'POST'])
+@auth.route('/login', methods=['GET', 'POST'], subdomain='employee')
 def login():
     user = get_current_user()
     if user.is_authenticated:
-        return redirect(url_for('views.home'))
+        result = get_admin_or_employee_portal_url(user, request)
+        if result[0]:
+            return redirect(result[1], code=302)
+        flash("wrong portal, please check if the url is correct!")
 
     if request.method == 'POST':
         args = request.url.split('?')[1] if 'shop' in request.args else ''
@@ -38,73 +42,31 @@ def login():
             user = _User()
             user.set_data(requests.get(API_URL + f'user?token={token}').json())
             user.token = token
-            if not user.role == 'emp':
+            result = get_admin_or_employee_portal_url(user, request)
+            if result[0]:
                 login_user(user)
                 flash('Logged in successfully!', category='success')
-                return redirect(url_for('views.home'))
-            else:
-                flash('Failed to login. Error: please use employee portal. http://employee.generic-shop.com:5000', category='error')
-        else:
-            flash(f'Failed to login. Error: {r.json()}', category='error')
-    return render_template("login.html", user=user)
-
-
-@auth.route('/login', methods=['GET', 'POST'], subdomain='employee')
-def emp_login():
-    user = get_current_user()
-    if user.is_authenticated:
-        return redirect(url_for('views.emp_home'))
-    if request.method == 'POST':
-        args = request.url.split('?')[1] if 'shop' in request.args else ''
-        r = requests.post(API_URL + f'token?{args}', data=request.form)
-        if r.status_code == 201:
-            token = json.loads(r.json()).get('access_token')
-            user = _User()
-            user.set_data(requests.get(API_URL + f'user?token={token}').json())
-            user.token = token
-            login_user(user)
-            flash('Logged in successfully!', category='success')
-            return redirect(url_for('views.emp_home'))
+                return redirect(result[1], code=302)
+            flash("wrong portal, please check if the url is correct!")
         else:
             flash(f'Failed to login. Error: {r.json()}', category='error')
     return render_template("login.html", user=user)
 
 
 @auth.route('/logout')
+@auth.route('/logout', subdomain='employee')
 @_login_required
 def logout():
     user = get_current_user()
-    if not user.is_authenticated:
-        flash('session expired')
-        logout_user()
-        return redirect_to_login(user)
-    headers = {'Authorization': f'{user.token}'}
-    r = requests.delete(API_URL + 'token', headers=headers)
-    if r.status_code == 200:
-        logout_user()
-        return redirect_to_login(user)
-    flash(f'Could not logout. Server response: {r.json()}', category='error')
-    if user.role == 'emp':
-        return redirect(url_for('views.emp_home'))
-    return redirect(url_for('views.home'))
-
-
-@auth.route('/logout', subdomain='employee')
-@emp_required
-def emp_logout():
-    user = get_current_user()
-    shop = user.shop_id
-    if not user.is_authenticated:
-        flash('session expired')
-        logout_user()
-        return redirect_to_login(user)
-    headers = {'Authorization': f'{user.token}'}
-    r = requests.delete(API_URL + 'token', headers=headers)
-    if r.status_code == 200:
-        logout_user()
-        return redirect(url_for('.emp_login'))
-    flash(f'Could not logout. Server response: {r.json()}', category='error')
-    return redirect(url_for('views.emp_home'))
+    if user.is_authenticated:
+        headers = {'Authorization': f'{user.token}'}
+        r = requests.delete(API_URL + 'token', headers=headers)
+        if r.status_code == 200:
+            logout_user()
+        else:
+            flash(f'Could not logout. Server response: {r.json()}', category='error')
+            return redirect(request.host_url, code=302)
+    return redirect_to_login(request)
 
 
 @auth.route('/sign-up', methods=['GET', 'POST'])
@@ -157,7 +119,7 @@ def direct_signup():
     if not user.is_authenticated:
         flash('session expired')
         logout_user()
-        return redirect_to_login(user)
+        return redirect_to_login(request)
     # all this
 
     if request.method == 'POST':
@@ -199,7 +161,7 @@ def create_emp():
     if not user.is_authenticated:
         flash('session expired')
         logout_user()
-        return redirect_to_login(user)
+        return redirect_to_login(request)
 
     if request.method == 'POST':
         request_type = request.form.get('type')
@@ -243,7 +205,7 @@ def create_shop():
     if not user.is_authenticated:
         flash('session expired')
         logout_user()
-        return redirect_to_login(user)
+        return redirect_to_login(request)
 
     if request.method == 'POST':
         shop_name = request.form.get('shop_name')
