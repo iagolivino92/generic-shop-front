@@ -1,45 +1,49 @@
 import json
 import flask
 import requests
+from flask_cors import CORS
 from flask import Blueprint, redirect, url_for, flash, request
 from flask import render_template
 from .utils import emp_required, admin_required, read_required, mgr_required, redirect_to_login
 from . import utils, API_URL
 
 views = Blueprint('views', __name__)
+CORS(views)
 
 
 @views.errorhandler(401)
 def not_authorized(e):
-    flash('user cannot access this page', category='error')
-    return redirect_to_login(utils.get_current_user())
+    if flask.session.get('user'):
+        flash('user cannot access this page', category='error')
+    return redirect_to_login(request)
 
 
 @views.errorhandler(404)
 def not_found(e):
     flash('page not found', category='error')
-    return redirect_to_login(utils.get_current_user())
+    return redirect_to_login(request)
 
 
 @views.route('/')
+@views.route('/', subdomain='employee')
 @read_required
 def home():
     user = utils.get_current_user()
     if not user.is_authenticated:
         flash('session expired')
         utils.logout_user()
-        return redirect_to_login(user)
+        return redirect_to_login(request)
     return render_template("home.html", user=user)
 
 
-@views.route('/', subdomain='employee')
+# @views.route('/', subdomain='employee')
 @emp_required
 def emp_home():
     user = utils.get_current_user()
     if not user.is_authenticated:
         flash('session expired')
         utils.logout_user()
-        return redirect_to_login(user)
+        return redirect_to_login(request)
     return render_template("employee.html", user=user)
 
 
@@ -51,7 +55,7 @@ def employees():
     if not user.is_authenticated:
         flash('session expired')
         utils.logout_user()
-        return redirect_to_login(user)
+        return redirect_to_login(request)
     if user.role == 'admin':
         r = requests.get(API_URL + 'employees', headers={"authorization": user.token})
     else:
@@ -68,7 +72,7 @@ def join_requests():
     if not user.is_authenticated:
         flash('session expired')
         utils.logout_user()
-        return redirect_to_login(user)
+        return redirect_to_login(request)
     jrs = {}
     if user.role == 'admin':
         r = requests.get(API_URL + 'join-requests', headers={"authorization": user.token})
@@ -86,7 +90,7 @@ def shops():
     if not user.is_authenticated:
         flash('session expired')
         utils.logout_user()
-        return redirect_to_login(user)
+        return redirect_to_login(request)
     s = requests.get(API_URL + 'shops', headers={"authorization": user.token}).json()
     return render_template('shops.html', user=user, shops=s)
 
@@ -98,7 +102,7 @@ def users():
     if not user.is_authenticated:
         flash('session expired')
         utils.logout_user()
-        return redirect_to_login(user)
+        return redirect_to_login(request)
     _users = {}
     if user.role == 'admin':
         r = requests.get(API_URL + 'users', headers={"authorization": user.token})
@@ -116,7 +120,7 @@ def accept_join(id):
     if not user.is_authenticated:
         flash('session expired')
         utils.logout_user()
-        return redirect_to_login(user)
+        return redirect_to_login(request)
     r = requests.patch(API_URL + f'join-request/{id}', data={"email": user.email, "action": "accept"},
                        headers={"authorization": user.token})
     if r.status_code == 200:
@@ -133,7 +137,7 @@ def decline_join(id):
     if not user.is_authenticated:
         flash('session expired')
         utils.logout_user()
-        return redirect_to_login(user)
+        return redirect_to_login(request)
     r = requests.patch(API_URL + f'join-request/{id}', data={"email": user.email, "action": "decline"},
                        headers={"authorization": user.token})
     if r.status_code == 200:
@@ -150,7 +154,7 @@ def delete_emp(id):
     if not user.is_authenticated:
         flash('session expired')
         utils.logout_user()
-        return redirect_to_login(user)
+        return redirect_to_login(request)
     r = requests.delete(API_URL + f'employee/{id}', headers={"authorization": user.token})
     if r.status_code == 201:
         flash('employee deleted', category='success')
@@ -166,7 +170,7 @@ def delete_user(id):
     if not user.is_authenticated:
         flash('session expired')
         utils.logout_user()
-        return redirect_to_login(user)
+        return redirect_to_login(request)
     r = requests.delete(API_URL + f'user/{id}', headers={"authorization": user.token})
     if r.status_code == 201:
         flash('user deleted', category='success')
@@ -182,7 +186,7 @@ def delete_shop(id):
     if not user.is_authenticated:
         flash('session expired')
         utils.logout_user()
-        return redirect_to_login(user)
+        return redirect_to_login(request)
     r = requests.delete(API_URL + f'shop/{id}', headers={"authorization": user.token})
     if r.status_code == 201:
         flash('shop deleted', category='success')
@@ -198,7 +202,7 @@ def entries():
     if not user.is_authenticated:
         flash('session expired')
         utils.logout_user()
-        return redirect_to_login(user)
+        return redirect_to_login(request)
     _keys = {}
     if user.role == 'admin':
         r = requests.get(API_URL + 'keys', headers={"authorization": user.token})
@@ -217,7 +221,7 @@ def create_entry():
     if not user.is_authenticated:
         flash('session expired')
         utils.logout_user()
-        return redirect_to_login(user)
+        return redirect_to_login(request)
     if user.role == 'admin' and request.method == 'GET':
         return render_template('create-entry-admin.html', user=user)
     if user.role == 'admin' and request.method == 'POST':
@@ -231,16 +235,17 @@ def create_entry():
 
 
 @views.route('/sales', methods=['GET', 'POST'])
+@views.route('/sales', methods=['GET', 'POST'], subdomain='employee')
 @read_required
 def sales():
     user = utils.get_current_user()
     if not user.is_authenticated:
         flash('session expired')
         utils.logout_user()
-        return redirect_to_login(user)
+        return redirect_to_login(request)
     if request.method == 'GET':
-        if user.role == 'emp':
-            return redirect(url_for('.my_sales'))
+        if user.role in ['emp', 'read']:
+            return redirect(request.host_url+"my-sales", 302)
         if user.role == 'mgr':
             r = requests.get(API_URL + f'users/shop/{user.shop_id}', headers={"authorization": user.token})
             users_ = r.json()
@@ -266,13 +271,14 @@ def sales():
 
 
 @views.route('/my-sales')
-@read_required
+@views.route('/my-sales', subdomain='employee')
+@emp_required
 def my_sales():
     user = utils.get_current_user()
     if not user.is_authenticated:
         flash('session expired')
         utils.logout_user()
-        return redirect_to_login(user)
+        return redirect_to_login(request)
     _sales = {}
     r = requests.get(API_URL + f'sales/user/{user.id}', headers={"authorization": user.token})
     if r.status_code == 200:
@@ -290,7 +296,7 @@ def sales_details():
     if not user.is_authenticated:
         flash('session expired')
         utils.logout_user()
-        return redirect_to_login(user)
+        return redirect_to_login(request)
     sales_ = {}
     # get user by email (/user - args: &email=<user_email> - flask.session['foreign_user']
     r = requests.get(API_URL + f"user?email={foreign_user.get_email()}", headers={"authorization": user.token})
@@ -304,13 +310,14 @@ def sales_details():
 
 
 @views.route('/add-sale', methods=['GET', 'POST'])
-@read_required
+@views.route('/add-sale', methods=['GET', 'POST'], subdomain='employee')
+@emp_required
 def add_sale():
     user = utils.get_current_user()
     if not user.is_authenticated:
         flash('session expired')
         utils.logout_user()
-        return redirect_to_login(user)
+        return redirect_to_login(request)
     if request.method == 'POST':
         r = requests.post(API_URL + 'sales', headers={"authorization": user.token}, data=request.form)
         if r.status_code != 201:
@@ -319,13 +326,14 @@ def add_sale():
 
 
 @views.route('/update-sale/<int:sale_id>')
-@mgr_required
+@views.route('/update-sale/<int:sale_id>', subdomain='employee')
+@emp_required
 def update_sale(sale_id):
     user = utils.get_current_user()
     if not user.is_authenticated:
         flash('session expired')
         utils.logout_user()
-        return redirect_to_login(user)
+        return redirect_to_login(request)
     form = {key: value for key, value in request.args.items()}
     r = requests.patch(API_URL + f'sale/{sale_id}', headers={"authorization": user.token}, data=form)
     if r.status_code == 201:
@@ -336,7 +344,8 @@ def update_sale(sale_id):
 
 
 @views.route('/save')
-@mgr_required
+@views.route('/save', subdomain='employee')
+@emp_required
 def save_foreign_email():
     foreign_user = utils.get_foreign_user()
     email = request.args.get('u')
@@ -355,7 +364,7 @@ def reports():
     if not user.is_authenticated:
         flash('session expired')
         utils.logout_user()
-        return redirect_to_login(user)
+        return redirect_to_login(request)
     _sales = {}
     if request.method == 'POST':
         # pass start_date and end_date as parameter for get method

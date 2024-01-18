@@ -30,7 +30,6 @@
     <script>
         function make_editable(sale_id){
             const button_ = document.getElementById('edit_'+sale_id);
-            const row = document.getElementById(sale_id);
             const sale_value = document.getElementById('sale_value_'+sale_id);
             const sale_rate = document.getElementById('sale_rate_'+sale_id);
             const sale_commission = document.getElementById('sale_commission_'+sale_id);
@@ -42,10 +41,7 @@
                 sale_status.setAttribute('contenteditable', '');
                 button_.textContent = 'Save';
             } else {
-                var xhttp = new XMLHttpRequest();
-                xhttp.open("GET", window.location.origin+"/update-sale/"+sale_id+"?status="+sale_status.textContent+"&value="+sale_value.textContent+"&rate="+sale_rate.textContent+"&commission="+sale_commission.textContent, true);
-                xhttp.send();
-                location.href="/sales-details";
+                window.location.href="/update-sale/"+sale_id+"?status="+sale_status.textContent+"&value="+sale_value.textContent+"&rate="+sale_rate.textContent+"&commission="+sale_commission.textContent;
             }
         }
     </script>

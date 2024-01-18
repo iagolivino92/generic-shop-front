@@ -7,6 +7,8 @@ from . import API_URL
 from .foreign_user import ForeignUser
 from .user import _User
 
+subdomain_url = "http://employee.generic-shop.com:5000/"
+
 
 class UserEncoder(JSONEncoder):
     def default(self, o):
@@ -42,6 +44,7 @@ def get_foreign_user():
 def login_user(user):
     user.is_authenticated = True
     flask.session['user'] = UserEncoder().encode(user)
+    flask.session['current_shop'] = UserEncoder().encode(user.shop_id)
 
 
 def logout_user():
@@ -62,8 +65,22 @@ def clear_foreign_user():
         print(e)
 
 
-def redirect_to_login(user):
-    return redirect(url_for('auth.login') + f'?shop={user.shop_id}')
+def redirect_to_login(request):
+    return redirect(request.host_url + f'login?shop={flask.session.get("current_shop")}', code=302)
+
+
+def get_admin_or_employee_portal_url(user, request):
+    is_correct_url = True
+    correct_url = request.host_url
+    if user.role == 'emp':
+        if "employee." not in request.host_url:
+            is_correct_url = False
+            correct_url = subdomain_url
+    else:
+        if "employee." in request.host_url:
+            is_correct_url = False
+            correct_url = request.host_url.replace("employee.", "")
+    return is_correct_url, correct_url
 
 
 def _login_required(f, role='read'):
@@ -73,16 +90,14 @@ def _login_required(f, role='read'):
     def decorated_function(*args, **kwargs):
         try:
             user_role = json.loads(flask.session['user']).get('role')
-            if user_role == 'admin' and (role == 'read' or role == 'mgr'):
-                user = True
-            elif user_role == 'mgr' and role == 'read':
-                user = True
-            else:
-                user = user_role == role
+            allow = (user_role == 'admin') or \
+                    (user_role == 'mgr' and (role == 'read' or role == 'emp')) or \
+                    (user_role == 'read' and role == 'emp') or \
+                    (user_role == role)
         except (AttributeError, KeyError) as e:
             print(e)
-            user = None
-        if not user:
+            allow = False
+        if not allow:
             abort(401)
         return f(*args, **kwargs)
 

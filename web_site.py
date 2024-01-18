@@ -1,8 +1,10 @@
 import flask
 from flask import redirect, flash, request
+from flask_cors import CORS
 from website import create_app
 
 app = create_app()
+CORS(app)
 
 
 @app.errorhandler(500)
