@@ -106,7 +106,7 @@ def join_signup():
         if not _check.json().get('join_id'):
             return render_template("sign-up.html", user=user)
         flash('key already used', category='error')
-    return redirect(url_for(".login"))
+    return redirect_to_login(request)
 
 
 # test method. signup endpoint should send a request to existing
