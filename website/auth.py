@@ -100,7 +100,7 @@ def join_signup():
             r = requests.put(API_URL + f'create-join-request?api-key={request.args.get("key")}', data=data)
             if r.status_code == 201:
                 flash('Join request sent!', category='success')
-                return redirect(url_for('.login') + f'?shop={shop_id}')
+                return redirect_to_login(request, shop=shop_id)
     _check = requests.get(API_URL + f'key/{request.args.get("key")}')
     if _check.status_code == 200:
         if not _check.json().get('join_id'):

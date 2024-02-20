@@ -65,8 +65,11 @@ def clear_foreign_user():
         print(e)
 
 
-def redirect_to_login(request):
-    return redirect(request.host_url + f'login?shop={flask.session.get("current_shop")}', code=302)
+def redirect_to_login(request, shop=None):
+    shop_ = shop
+    if not shop:
+        shop_ = flask.session.get("current_shop")
+    return redirect(request.host_url + f'login?shop={shop_}', code=302)
 
 
 def get_admin_or_employee_portal_url(user, request):
