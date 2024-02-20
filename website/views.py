@@ -26,7 +26,7 @@ def not_found(e):
 
 @views.route('/')
 @views.route('/', subdomain='employee')
-@read_required
+@emp_required
 def home():
     user = utils.get_current_user()
     if not user.is_authenticated:
