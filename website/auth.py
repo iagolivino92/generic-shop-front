@@ -177,6 +177,8 @@ def create_emp():
         else:
             data = request.form.to_dict()
             data['role'] = 'emp'
+            if user.role == 'mgr':
+                data['shop_id'] = user.shop_id
             if request_type == 'update':
                 r = requests.patch(API_URL + f'employee/{request.args.get("e")}', data=data, headers={"authorization": user.token})
             else:
