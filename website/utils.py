@@ -15,6 +15,13 @@ class UserEncoder(JSONEncoder):
         return o.__dict__
 
 
+def update_session_user_details(user=None):
+    r = requests.get(API_URL + f'user?token={user.token}').json()
+    user.set_data(r)
+    user.is_authenticated = is_user_allowed(user.token)
+    flask.session['user'] = UserEncoder().encode(user)
+
+
 def is_user_allowed(token):
     r = requests.post(API_URL + 'token', headers={'authorization': f'{token}'})
     return r.status_code == 200
@@ -95,7 +102,7 @@ def _login_required(f, role='read'):
             user_role = json.loads(flask.session['user']).get('role')
             allow = (user_role == 'admin') or \
                     (user_role == 'mgr' and (role == 'read' or role == 'emp')) or \
-                    (user_role == 'read' and role == 'emp') or \
+                    (user_role == 'emp' and role == 'read') or \
                     (user_role == role)
         except (AttributeError, KeyError) as e:
             print(e)

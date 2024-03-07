@@ -40,7 +40,7 @@
           {% endif %}
           <a id="sales" href="/sales">Sales</a>
           <a id="reports" href="/reports">Reports</a>
-          <a id="mydetails" href="/my-details">My Details</a>
+          <a id="my-details" href="/my-details">My Details</a>
           <a id="logout" href="/logout">Logout</a>
           {% else %}
           <a id="login" href="/login">Login</a>
@@ -49,20 +49,18 @@
       </div>
     </div>
   </nav>
-    {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-        {% for category, message in messages %}
-            <div role="alert">
-                {{ message }}
-                <button type="button">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-        {% endfor %}
-    {% endif %}
-    {% endwith %}
-
-    <div class="container">{% block content %} {% endblock %}</div>
-    <!--script type="text/javascript" src="{{ url_for('static', filename='index.js') }}"></script-->
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+    {% for category, message in messages %}
+        <div role="alert">
+            {{ message }}
+            <button type="button">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    {% endfor %}
+{% endif %}
+{% endwith %}
+<div class="container">{% block content %} {% endblock %}</div>
 </body>
 </html>

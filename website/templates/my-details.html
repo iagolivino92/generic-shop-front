@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}My details{% endblock %}
+{% block content %}
+<h1>My Details</h1>
+<form method="POST">
+    <div>
+        <label for="firstName">First Name</label>
+        <input id="firstName" name="first_name" value="{{ user.first_name }}" disabled>
+    </div>
+    <div>
+        <label for="lastName">Last Name</label>
+        <input id="lastName" name="last_name" value="{{ user.last_name }}" disabled>
+    </div>
+    <div>
+        <label for="email">Email</label>
+        <input id="email" type="email" name="email" value="{{ user.email }}" disabled>
+    </div>
+    <div>
+        <label for="contact">Contact</label>
+        <input id="contact" name="contact" value="{{ user.contact }}" disabled>
+    </div>
+    {% if user.role not in ['read', 'emp'] %}
+    <div>
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" value="">
+    </div>
+    <br/>
+    <button id="edit_btn" type="button" onclick="edit_details()" >Edit</button>
+    <button type="submit">Update</button>
+    {% endif %}
+</form>
+{% if user.role not in ['read', 'emp'] %}
+<script type="application/javascript">
+    function edit_details(){
+        const edit_btn = document.getElementById("edit_btn");
+        let enable_edition = edit_btn.textContent === 'Edit';
+        let inputs = document.getElementsByTagName("input");
+        for(let i = 0; i < inputs.length-1; i++){
+            if(enable_edition) {
+                if (inputs[i].getAttribute("disabled") === "" || inputs[i].getAttribute("disabled") === "true") {
+                    inputs[i].removeAttribute("disabled");
+                }
+            }else {
+                if(inputs[i].getAttribute("id") !== "password") {
+                    inputs[i].setAttribute("disabled", "true");
+                }
+            }
+        }
+        if(enable_edition){
+             document.getElementById("edit_btn").textContent = 'Cancel';
+        }
+        else {
+            clear_inputs();
+        }
+    }
+    function clear_inputs(){
+        document.getElementById("edit_btn").textContent = 'Edit';
+
+        document.getElementById("firstName").value = "{{ user.first_name }}";
+        document.getElementById("firstName").setAttribute("disabled", "true");
+
+        document.getElementById("lastName").value = "{{ user.last_name }}";
+        document.getElementById("lastName").setAttribute("disabled", "true");
+
+        document.getElementById("email").value = "{{ user.email }}";
+        document.getElementById("email").setAttribute("disabled", "true");
+
+        document.getElementById("contact").value = "{{ user.contact }}";
+        document.getElementById("contact").setAttribute("disabled", "true");
+
+        document.getElementById("password").value = "";
+    }
+</script>
+{% endif %}
+{% endblock %}
