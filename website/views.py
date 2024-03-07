@@ -374,3 +374,26 @@ def reports():
         _sales = r.json()
     return render_template('reports.html', user=user, sales=_sales)
 
+
+@views.route('/my-details', methods=['GET', 'POST'])
+@views.route('/my-details', subdomain='employee', methods=['GET', 'POST'])
+@emp_required
+def my_details():
+    user = utils.get_current_user()
+    if not user.is_authenticated:
+        flash('session expired')
+        utils.logout_user()
+        return redirect_to_login(request)
+    if request.method == "POST":
+        data = {}
+        for item in request.form:
+            if request.form.get(item) != '':
+                data[item] = request.form.get(item)
+        r = requests.patch(API_URL + f'user/{user.id}', data=data,
+                           headers={"authorization": user.token})
+        if r.status_code != 201:
+            flash(f'Could not update user! Server error: {r.json()}', category='error')
+        elif r.status_code == 201:
+            utils.update_session_user_details(user)
+            flash('Your details were updated!', category='success')
+    return render_template('my-details.html', user=user)
