@@ -93,6 +93,11 @@ def get_admin_or_employee_portal_url(user, request):
     return is_correct_url, correct_url
 
 
+def save_last_referrer(request):
+    if request.base_url != request.referrer:
+        flask.session['last_ref'] = request.referrer
+
+
 def _login_required(f, role='read'):
     from functools import wraps
 
