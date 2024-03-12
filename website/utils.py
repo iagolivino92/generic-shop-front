@@ -93,6 +93,11 @@ def get_admin_or_employee_portal_url(user, request):
     return is_correct_url, correct_url
 
 
+def save_last_referrer(request):
+    if request.base_url != request.referrer:
+        flask.session['last_ref'] = request.referrer
+
+
 def _login_required(f, role='read'):
     from functools import wraps
 
@@ -112,6 +117,11 @@ def _login_required(f, role='read'):
         return f(*args, **kwargs)
 
     return decorated_function
+
+
+def valid_reset_hash_required(request=None):
+    r = requests.get(API_URL + f"/user/reset-password/validate/{request.args.get('h')}")
+    return r.status_code == 200
 
 
 def emp_required(f):
