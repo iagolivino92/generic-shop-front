@@ -267,18 +267,22 @@ def forgot_password():
 @auth.route('/reset-password', methods=['GET', 'POST'])
 @auth.route('/reset-password', methods=['GET', 'POST'], subdomain='employee')
 def reset_password():
-    user = get_current_user()
-    if user.is_authenticated:
-        result = get_admin_or_employee_portal_url(user, request)
-        if result[0]:
-            return redirect(result[1], code=302)
-        flash("wrong portal, please check if the url is correct!")
+    if valid_reset_hash_required(request):
+        user = get_current_user()
+        if user.is_authenticated:
+            result = get_admin_or_employee_portal_url(user, request)
+            if result[0]:
+                return redirect(result[1], code=302)
+            flash("wrong portal, please check if the url is correct!")
 
-    if request.method == "POST":
-        r = requests.post(API_URL + f'user/set-new-password?h={request.args.get("h")}', data=request.form)
-        if r.status_code == 201:
-            flash("Password successfully updated!", category="success")
-            requests.delete(API_URL + f'user/set-new-password?h={request.args.get("h")}')
-            return redirect_to_login(request)
-        flash(f"Something went wrong. Server error: {r.json()}", category="success")
-    return render_template('reset-password.html', user=user)
+        if request.method == "POST":
+            r = requests.post(API_URL + f'user/set-new-password?h={request.args.get("h")}', data=request.form)
+            if r.status_code == 201:
+                flash("Password successfully updated!", category="success")
+                requests.delete(API_URL + f'user/set-new-password?h={request.args.get("h")}')
+                return redirect_to_login(request)
+            flash(f"Something went wrong. Server error: {r.json()}", category="success")
+        return render_template('reset-password.html', user=user)
+    else:
+        flash("link not valid", category="error")
+        return redirect(request.host_url+"forgot-password", 302)

@@ -119,6 +119,11 @@ def _login_required(f, role='read'):
     return decorated_function
 
 
+def valid_reset_hash_required(request=None):
+    r = requests.get(API_URL + f"/user/reset-password/validate/{request.args.get('h')}")
+    return r.status_code == 200
+
+
 def emp_required(f):
     return _login_required(f, 'emp')
 
